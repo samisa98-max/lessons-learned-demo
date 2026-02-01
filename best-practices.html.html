@@ -1,0 +1,1714 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>نظام إدارة أفضل الممارسات - BPMP</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', 'Tajawal', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            direction: rtl;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .header h1 {
+            color: #1976D2;
+            font-size: 32px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 16px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+            cursor: pointer;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+
+        .stat-icon {
+            font-size: 36px;
+            margin-bottom: 10px;
+        }
+
+        .stat-value {
+            font-size: 32px;
+            font-weight: bold;
+            color: #1976D2;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 13px;
+        }
+
+        .stat-trend {
+            font-size: 12px;
+            color: #4CAF50;
+            margin-top: 5px;
+        }
+
+        .main-actions {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .btn-primary {
+            background: #1976D2;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #1565C0;
+            transform: scale(1.05);
+        }
+
+        .btn-success {
+            background: #4CAF50;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #388E3C;
+        }
+
+        .btn-secondary {
+            background: #FF9800;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #F57C00;
+        }
+
+        .btn-cancel {
+            background: #757575;
+            color: white;
+        }
+
+        .btn-cancel:hover {
+            background: #616161;
+        }
+
+        .practices-container {
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .section-title {
+            font-size: 24px;
+            color: #333;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .search-filter-section {
+            margin-bottom: 25px;
+        }
+
+        .search-bar {
+            width: 100%;
+            padding: 15px 20px;
+            border: 2px solid #E0E0E0;
+            border-radius: 10px;
+            font-size: 16px;
+            margin-bottom: 15px;
+            transition: border-color 0.3s;
+        }
+
+        .search-bar:focus {
+            outline: none;
+            border-color: #1976D2;
+        }
+
+        .filters {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .filter-group {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .filter-label {
+            font-size: 14px;
+            color: #666;
+            font-weight: 600;
+        }
+
+        .filter-btn {
+            padding: 8px 16px;
+            border: 2px solid #E0E0E0;
+            background: white;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 14px;
+        }
+
+        .filter-btn:hover {
+            border-color: #1976D2;
+            color: #1976D2;
+        }
+
+        .filter-btn.active {
+            background: #1976D2;
+            color: white;
+            border-color: #1976D2;
+        }
+
+        .practice-card {
+            border: 2px solid #E0E0E0;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 20px;
+            transition: all 0.3s;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .practice-card:hover {
+            border-color: #1976D2;
+            box-shadow: 0 5px 20px rgba(25, 118, 210, 0.1);
+            transform: translateX(-5px);
+        }
+
+        .certified-badge {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            box-shadow: 0 2px 8px rgba(255, 215, 0, 0.3);
+        }
+
+        .practice-header {
+            margin-bottom: 15px;
+            padding-left: 80px;
+        }
+
+        .practice-title {
+            font-size: 20px;
+            color: #333;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .practice-meta {
+            display: flex;
+            gap: 15px;
+            color: #666;
+            font-size: 13px;
+            flex-wrap: wrap;
+        }
+
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .category-badge {
+            background: #E3F2FD;
+            color: #1976D2;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .difficulty-badge {
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .difficulty-easy {
+            background: #E8F5E9;
+            color: #4CAF50;
+        }
+
+        .difficulty-medium {
+            background: #FFF3E0;
+            color: #FF9800;
+        }
+
+        .difficulty-advanced {
+            background: #FFEBEE;
+            color: #F44336;
+        }
+
+        .practice-excerpt {
+            color: #555;
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+
+        .practice-benefits {
+            background: #F5F5F5;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+
+        .practice-benefits h4 {
+            color: #4CAF50;
+            font-size: 14px;
+            margin-bottom: 8px;
+        }
+
+        .practice-benefits ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .practice-benefits li {
+            color: #666;
+            font-size: 13px;
+            padding: 4px 0;
+            padding-right: 20px;
+            position: relative;
+        }
+
+        .practice-benefits li::before {
+            content: '✓';
+            position: absolute;
+            right: 0;
+            color: #4CAF50;
+            font-weight: bold;
+        }
+
+        .practice-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 15px;
+            border-top: 1px solid #E0E0E0;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .practice-stats {
+            display: flex;
+            gap: 20px;
+            font-size: 13px;
+            color: #666;
+            flex-wrap: wrap;
+        }
+
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .success-rate {
+            color: #4CAF50;
+            font-weight: 600;
+        }
+
+        .view-btn {
+            padding: 8px 20px;
+            background: #1976D2;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 14px;
+        }
+
+        .view-btn:hover {
+            background: #1565C0;
+            transform: scale(1.05);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 16px;
+            padding: 40px;
+            max-width: 1000px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            font-size: 30px;
+            cursor: pointer;
+            color: #666;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background: #f5f5f5;
+            transition: all 0.3s;
+        }
+
+        .close-btn:hover {
+            color: white;
+            background: #F44336;
+        }
+
+        .detail-section {
+            margin-bottom: 30px;
+        }
+
+        .detail-section h3 {
+            color: #1976D2;
+            margin-bottom: 15px;
+            font-size: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .detail-section p, .detail-section ul {
+            color: #555;
+            line-height: 1.8;
+        }
+
+        .detail-section ul {
+            list-style-position: inside;
+            padding-right: 20px;
+        }
+
+        .detail-section ul li {
+            margin-bottom: 10px;
+        }
+
+        .steps-container {
+            margin-top: 20px;
+        }
+
+        .step-card {
+            background: #F8F9FA;
+            border-right: 4px solid #1976D2;
+            padding: 20px;
+            margin-bottom: 15px;
+            border-radius: 8px;
+        }
+
+        .step-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .step-number {
+            background: #1976D2;
+            color: white;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+
+        .step-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+            flex: 1;
+            margin: 0 15px;
+        }
+
+        .step-duration {
+            color: #666;
+            font-size: 13px;
+        }
+
+        .step-description {
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 10px;
+        }
+
+        .step-tips {
+            background: #FFF3E0;
+            border-right: 3px solid #FF9800;
+            padding: 10px 15px;
+            border-radius: 6px;
+            margin-top: 10px;
+        }
+
+        .step-tips strong {
+            color: #FF9800;
+        }
+
+        /* Wizard Styles */
+        .wizard-steps {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 40px;
+            position: relative;
+            padding: 0 10px;
+        }
+
+        .wizard-steps::before {
+            content: '';
+            position: absolute;
+            top: 20px;
+            right: 60px;
+            left: 60px;
+            height: 2px;
+            background: #E0E0E0;
+            z-index: 0;
+        }
+
+        .wizard-step {
+            flex: 1;
+            text-align: center;
+            position: relative;
+            z-index: 1;
+            max-width: 150px;
+        }
+
+        .step-number-wizard {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: #E0E0E0;
+            color: #999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 10px;
+            font-weight: bold;
+            transition: all 0.3s;
+            font-size: 18px;
+        }
+
+        .wizard-step.active .step-number-wizard {
+            background: #1976D2;
+            color: white;
+            box-shadow: 0 4px 12px rgba(25, 118, 210, 0.3);
+            transform: scale(1.1);
+        }
+
+        .wizard-step.completed .step-number-wizard {
+            background: #4CAF50;
+            color: white;
+        }
+
+        .wizard-step.completed .step-number-wizard::after {
+            content: '✓';
+        }
+
+        .step-label {
+            font-size: 13px;
+            color: #666;
+            font-weight: 600;
+        }
+
+        .wizard-step.active .step-label {
+            color: #1976D2;
+        }
+
+        .form-step {
+            display: none;
+        }
+
+        .form-step.active {
+            display: block;
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 600;
+            font-size: 15px;
+        }
+
+        .form-group label .required {
+            color: #F44336;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #E0E0E0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+            font-family: inherit;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #1976D2;
+        }
+
+        .form-group textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        .category-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+            gap: 12px;
+        }
+
+        .category-option {
+            padding: 20px;
+            border: 2px solid #E0E0E0;
+            border-radius: 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: white;
+        }
+
+        .category-option:hover {
+            border-color: #1976D2;
+            transform: translateY(-2px);
+        }
+
+        .category-option.selected {
+            border-color: #1976D2;
+            background: #E3F2FD;
+        }
+
+        .category-icon {
+            font-size: 32px;
+            margin-bottom: 8px;
+        }
+
+        .wizard-actions {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 2px solid #E0E0E0;
+        }
+
+        .success-message {
+            background: #E8F5E9;
+            border: 2px solid #4CAF50;
+            border-radius: 12px;
+            padding: 30px;
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .success-icon {
+            font-size: 64px;
+            margin-bottom: 20px;
+        }
+
+        .success-message h3 {
+            color: #4CAF50;
+            margin-bottom: 10px;
+            font-size: 24px;
+        }
+
+        .success-message p {
+            color: #666;
+            margin-bottom: 20px;
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .metric-card {
+            background: #F8F9FA;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .metric-label {
+            font-size: 13px;
+            color: #666;
+            margin-bottom: 8px;
+        }
+
+        .metric-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #1976D2;
+        }
+
+        .metric-improvement {
+            font-size: 14px;
+            color: #4CAF50;
+            margin-top: 5px;
+        }
+
+        @media (max-width: 768px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .main-actions {
+                flex-direction: column;
+            }
+            
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+            
+            .modal-content {
+                padding: 20px;
+            }
+
+            .wizard-steps {
+                flex-wrap: wrap;
+            }
+
+            .wizard-step {
+                flex-basis: 50%;
+                margin-bottom: 20px;
+            }
+
+            .practice-header {
+                padding-left: 0;
+                padding-top: 50px;
+            }
+
+            .certified-badge {
+                top: 15px;
+                right: 15px;
+                left: auto;
+            }
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #666;
+        }
+
+        .empty-state-icon {
+            font-size: 80px;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 30px;
+            flex-wrap: wrap;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>
+                <span>🏆</span>
+                نظام إدارة أفضل الممارسات
+            </h1>
+            <p>اكتشف، طبّق، وشارك أفضل الطرق والممارسات المثبتة في منظمتك</p>
+        </div>
+
+        <!-- Statistics -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon">📋</div>
+                <div class="stat-value" id="totalPractices">3</div>
+                <div class="stat-label">إجمالي الممارسات</div>
+                <div class="stat-trend">↗ +12% هذا الشهر</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">🏅</div>
+                <div class="stat-value" id="certifiedPractices">2</div>
+                <div class="stat-label">ممارسات معتمدة</div>
+                <div class="stat-trend">↗ +100%</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">👥</div>
+                <div class="stat-value">503</div>
+                <div class="stat-label">مستخدم نشط</div>
+                <div class="stat-trend">↗ +45%</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">⭐</div>
+                <div class="stat-value" id="avgRating">4.7</div>
+                <div class="stat-label">متوسط التقييم</div>
+                <div class="stat-trend">↗ +0.3</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">📈</div>
+                <div class="stat-value">89%</div>
+                <div class="stat-label">معدل النجاح</div>
+                <div class="stat-trend">↗ +7%</div>
+            </div>
+        </div>
+
+        <!-- Main Actions -->
+        <div class="main-actions">
+            <button class="btn btn-primary" onclick="showAddPracticeForm()">
+                <span>➕</span>
+                إضافة ممارسة متميزة
+            </button>
+            <button class="btn btn-success" onclick="showMyPractices()">
+                <span>✅</span>
+                ممارساتي المطبقة
+            </button>
+            <button class="btn btn-secondary" onclick="showAnalytics()">
+                <span>📊</span>
+                التحليلات والمقارنات
+            </button>
+        </div>
+
+        <!-- Practices Container -->
+        <div class="practices-container">
+            <h2 class="section-title">
+                <span>📚</span>
+                مكتبة أفضل الممارسات
+            </h2>
+
+            <div class="search-filter-section">
+                <input type="text" class="search-bar" id="searchBar" placeholder="🔍 ابحث عن ممارسة متميزة...">
+
+                <div class="filters">
+                    <div class="filter-group">
+                        <span class="filter-label">عرض:</span>
+                        <button class="filter-btn active" data-filter="all">الكل</button>
+                        <button class="filter-btn" data-filter="certified">🏆 المعتمدة</button>
+                        <button class="filter-btn" data-filter="popular">🔥 الأكثر تطبيقاً</button>
+                    </div>
+                    <div class="filter-group">
+                        <span class="filter-label">الصعوبة:</span>
+                        <button class="filter-btn" data-difficulty="easy">🟢 سهل</button>
+                        <button class="filter-btn" data-difficulty="medium">🟡 متوسط</button>
+                        <button class="filter-btn" data-difficulty="advanced">🔴 متقدم</button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="practicesContainer"></div>
+        </div>
+    </div>
+
+    <!-- Modal for Practice Details -->
+    <div id="practiceModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeModal()">×</span>
+            <div id="modalContent"></div>
+        </div>
+    </div>
+
+    <!-- Modal for Add Practice Form -->
+    <div id="addPracticeModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeAddPracticeForm()">×</span>
+            <h2 style="margin-bottom: 30px;">➕ إضافة ممارسة متميزة جديدة</h2>
+            
+            <div class="wizard-steps">
+                <div class="wizard-step active" data-step="1">
+                    <div class="step-number-wizard">1</div>
+                    <div class="step-label">معلومات الممارسة</div>
+                </div>
+                <div class="wizard-step" data-step="2">
+                    <div class="step-number-wizard">2</div>
+                    <div class="step-label">الوصف والفوائد</div>
+                </div>
+                <div class="wizard-step" data-step="3">
+                    <div class="step-number-wizard">3</div>
+                    <div class="step-label">خطوات التطبيق</div>
+                </div>
+                <div class="wizard-step" data-step="4">
+                    <div class="step-number-wizard">4</div>
+                    <div class="step-label">النتائج والأدلة</div>
+                </div>
+                <div class="wizard-step" data-step="5">
+                    <div class="step-number-wizard">5</div>
+                    <div class="step-label">المراجعة والنشر</div>
+                </div>
+            </div>
+
+            <form id="addPracticeForm">
+                <!-- Step 1: Practice Info -->
+                <div class="form-step active" data-step="1">
+                    <div class="form-group">
+                        <label>اسم الممارسة <span class="required">*</span></label>
+                        <input type="text" id="practiceName" required placeholder="مثال: إدارة الاجتماعات الفعّالة">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>القسم المطبق <span class="required">*</span></label>
+                        <input type="text" id="department" required placeholder="مثال: الإدارة العامة">
+                    </div>
+
+                    <div class="form-group">
+                        <label>الفئة <span class="required">*</span></label>
+                        <div class="category-grid">
+                            <div class="category-option" data-category="management">
+                                <div class="category-icon">📊</div>
+                                <div>إدارة</div>
+                            </div>
+                            <div class="category-option" data-category="technical">
+                                <div class="category-icon">💻</div>
+                                <div>تقنية</div>
+                            </div>
+                            <div class="category-option" data-category="services">
+                                <div class="category-icon">🤝</div>
+                                <div>خدمات</div>
+                            </div>
+                            <div class="category-option" data-category="marketing">
+                                <div class="category-icon">📣</div>
+                                <div>تسويق</div>
+                            </div>
+                            <div class="category-option" data-category="hr">
+                                <div class="category-icon">👥</div>
+                                <div>موارد بشرية</div>
+                            </div>
+                            <div class="category-option" data-category="financial">
+                                <div class="category-icon">💰</div>
+                                <div>مالية</div>
+                            </div>
+                        </div>
+                        <input type="hidden" id="practiceCategory" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>مستوى الصعوبة <span class="required">*</span></label>
+                        <div class="category-grid" style="grid-template-columns: repeat(3, 1fr);">
+                            <div class="category-option" data-difficulty="easy">
+                                <div class="category-icon">🟢</div>
+                                <div>سهل</div>
+                            </div>
+                            <div class="category-option" data-difficulty="medium">
+                                <div class="category-icon">🟡</div>
+                                <div>متوسط</div>
+                            </div>
+                            <div class="category-option" data-difficulty="advanced">
+                                <div class="category-icon">🔴</div>
+                                <div>متقدم</div>
+                            </div>
+                        </div>
+                        <input type="hidden" id="practiceDifficulty" required>
+                    </div>
+                </div>
+
+                <!-- Step 2: Description -->
+                <div class="form-step" data-step="2">
+                    <div class="form-group">
+                        <label>نظرة عامة <span class="required">*</span></label>
+                        <textarea id="overview" required placeholder="اشرح الممارسة بشكل موجز..."></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label>المشكلة التي تحلها <span class="required">*</span></label>
+                        <textarea id="problem" required placeholder="ما المشكلة أو التحدي الذي تعالجه هذه الممارسة؟"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label>الحل المقدم</label>
+                        <textarea id="solution" placeholder="كيف تحل هذه الممارسة المشكلة؟"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label>الفوائد المتوقعة (فائدة واحدة في كل سطر)</label>
+                        <textarea id="benefits" placeholder="مثال:
+تقليل مدة الاجتماعات بنسبة 40%
+زيادة الإنتاجية بنسبة 35%
+تحسين رضا الموظفين"></textarea>
+                    </div>
+                </div>
+
+                <!-- Step 3: Implementation Steps -->
+                <div class="form-step" data-step="3">
+                    <div class="form-group">
+                        <label>خطوات التطبيق <span class="required">*</span></label>
+                        <p style="color: #666; font-size: 13px; margin-bottom: 10px;">اكتب كل خطوة في سطر منفصل</p>
+                        <textarea id="steps" required placeholder="الخطوة 1: التحضير المسبق - تحديد الهدف وإعداد جدول الأعمال
+الخطوة 2: بداية الاجتماع - مراجعة الأهداف والوقت المتاح
+الخطوة 3: إدارة النقاش - الالتزام بجدول الأعمال..."></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label>المدة الزمنية الإجمالية</label>
+                        <input type="text" id="timeline" placeholder="مثال: 3-4 أسابيع للتطبيق الكامل">
+                    </div>
+
+                    <div class="form-group">
+                        <label>نصائح مهمة للتطبيق</label>
+                        <textarea id="tips" placeholder="أي نصائح أو إرشادات مهمة للنجاح في تطبيق هذه الممارسة..."></textarea>
+                    </div>
+                </div>
+
+                <!-- Step 4: Evidence -->
+                <div class="form-step" data-step="4">
+                    <div class="form-group">
+                        <label>معدل النجاح (اختياري)</label>
+                        <input type="number" id="successRate" min="0" max="100" placeholder="مثال: 92">
+                        <small style="color: #666;">النسبة المئوية لنجاح التطبيق</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label>النتائج المثبتة</label>
+                        <textarea id="results" placeholder="اذكر النتائج الملموسة والقابلة للقياس من تطبيق هذه الممارسة..."></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label>دراسة حالة</label>
+                        <textarea id="caseStudy" placeholder="شارك مثالاً واقعياً لتطبيق هذه الممارسة بنجاح..."></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label>شهادات المستخدمين</label>
+                        <textarea id="testimonials" placeholder="اقتباسات من أشخاص طبقوا هذه الممارسة..."></textarea>
+                    </div>
+                </div>
+
+                <!-- Step 5: Review & Publish -->
+                <div class="form-step" data-step="5">
+                    <div class="form-group">
+                        <label>ملاحظات إضافية</label>
+                        <textarea id="additionalNotes" placeholder="أي معلومات إضافية تود إضافتها..."></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label>
+                            <input type="checkbox" id="requestCertification" style="width: auto; margin-left: 10px;">
+                            طلب اعتماد هذه الممارسة
+                        </label>
+                        <small style="display: block; color: #666; margin-top: 5px;">
+                            سيتم مراجعة الممارسة من قبل الخبراء قبل منح الاعتماد
+                        </small>
+                    </div>
+
+                    <div class="success-message" style="display: none;" id="successMessage">
+                        <div class="success-icon">✅</div>
+                        <h3>تم حفظ الممارسة بنجاح!</h3>
+                        <p>شكراً لمساهمتك في إثراء مكتبة أفضل الممارسات</p>
+                    </div>
+                </div>
+
+                <div class="wizard-actions">
+                    <button type="button" class="btn btn-cancel" onclick="closeAddPracticeForm()">إلغاء</button>
+                    <div style="display: flex; gap: 10px;">
+                        <button type="button" class="btn btn-secondary" id="prevBtn" onclick="previousStep()" style="display: none;">
+                            ← السابق
+                        </button>
+                        <button type="button" class="btn btn-primary" id="nextBtn" onclick="nextStep()">
+                            التالي ←
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let practices = [
+            {
+                id: 1,
+                name: "إدارة الاجتماعات الفعّالة",
+                category: "إدارة",
+                department: "فريق الإدارة",
+                difficulty: "medium",
+                certified: true,
+                certificationLevel: "gold",
+                overview: "منهجية متكاملة لتخطيط وإدارة الاجتماعات بطريقة فعالة تضمن تحقيق الأهداف وتوفير الوقت.",
+                problem: "اجتماعات طويلة بدون نتائج واضحة، عدم الالتزام بالوقت، غياب المتابعة",
+                benefits: ["تقليل مدة الاجتماعات بنسبة 40%", "زيادة الإنتاجية بنسبة 35%", "تحسين رضا الموظفين عن الاجتماعات"],
+                successRate: 92,
+                users: 258,
+                applied: 156,
+                rating: 4.9,
+                ratingCount: 45,
+                steps: 5
+            },
+            {
+                id: 2,
+                name: "نظام الرد على البريد الإلكتروني",
+                category: "إدارة",
+                department: "خدمة العملاء",
+                difficulty: "easy",
+                certified: true,
+                certificationLevel: "silver",
+                overview: "نظام فعال لإدارة البريد الإلكتروني وتقليل وقت الرد مع ضمان جودة الخدمة.",
+                problem: "تأخر في الردود، ضياع رسائل مهمة، عدم تنظيم البريد",
+                benefits: ["تقليل وقت الرد 50%", "زيادة رضا العملاء", "تنظيم أفضل للبريد"],
+                successRate: 87,
+                users: 189,
+                applied: 98,
+                rating: 4.6,
+                ratingCount: 32,
+                steps: 4
+            },
+            {
+                id: 3,
+                name: "نموذج تقييم الأداء الذاتي",
+                category: "موارد بشرية",
+                department: "الموارد البشرية",
+                difficulty: "medium",
+                certified: false,
+                overview: "نموذج متطور لتقييم الأداء الذاتي يساعد الموظفين على تحسين مهاراتهم.",
+                problem: "عدم وضوح معايير التقييم، صعوبة التقييم الذاتي الموضوعي",
+                benefits: ["تحسين الوعي الذاتي", "تطوير المهارات بشكل مستمر", "تسهيل عملية التقييم"],
+                successRate: 78,
+                users: 56,
+                applied: 23,
+                rating: 4.3,
+                ratingCount: 12,
+                steps: 6
+            }
+        ];
+
+        let currentStep = 1;
+        let newPractice = {};
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            renderPractices();
+            setupEventListeners();
+        });
+
+        // Setup event listeners
+        function setupEventListeners() {
+            // Search
+            document.getElementById('searchBar').addEventListener('input', handleSearch);
+
+            // Filter buttons
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.addEventListener('click', handleFilter);
+            });
+
+            // Category selection
+            document.querySelectorAll('.category-option').forEach(option => {
+                option.addEventListener('click', function() {
+                    const parent = this.parentElement;
+                    parent.querySelectorAll('.category-option').forEach(o => o.classList.remove('selected'));
+                    this.classList.add('selected');
+                    
+                    if (this.dataset.category) {
+                        document.getElementById('practiceCategory').value = this.dataset.category;
+                    }
+                    if (this.dataset.difficulty) {
+                        document.getElementById('practiceDifficulty').value = this.dataset.difficulty;
+                    }
+                });
+            });
+
+            // Close modals on outside click
+            window.onclick = function(event) {
+                const practiceModal = document.getElementById('practiceModal');
+                const addModal = document.getElementById('addPracticeModal');
+                if (event.target === practiceModal) {
+                    closeModal();
+                }
+                if (event.target === addModal) {
+                    closeAddPracticeForm();
+                }
+            }
+        }
+
+        // Render practices
+        function renderPractices(filteredPractices = practices) {
+            const container = document.getElementById('practicesContainer');
+            
+            if (filteredPractices.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📭</div>
+                        <h3>لا توجد ممارسات</h3>
+                        <p>ابدأ بإضافة أول ممارسة متميزة!</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = filteredPractices.map(practice => `
+                <div class="practice-card" onclick="showPracticeDetail(${practice.id})">
+                    ${practice.certified ? `
+                        <div class="certified-badge">
+                            🏆 معتمدة
+                        </div>
+                    ` : ''}
+                    
+                    <div class="practice-header">
+                        <div class="practice-title">${practice.name}</div>
+                        <div class="practice-meta">
+                            <span class="category-badge">📂 ${practice.category}</span>
+                            <span class="meta-item">👤 ${practice.department}</span>
+                            <span class="difficulty-badge difficulty-${practice.difficulty}">
+                                ${getDifficultyLabel(practice.difficulty)}
+                            </span>
+                        </div>
+                    </div>
+
+                    <p class="practice-excerpt">${practice.overview}</p>
+
+                    ${practice.benefits && practice.benefits.length > 0 ? `
+                        <div class="practice-benefits">
+                            <h4>✅ الفوائد الرئيسية:</h4>
+                            <ul>
+                                ${practice.benefits.slice(0, 3).map(benefit => `<li>${benefit}</li>`).join('')}
+                            </ul>
+                        </div>
+                    ` : ''}
+
+                    <div class="practice-footer">
+                        <div class="practice-stats">
+                            <span class="stat-item">⭐ ${practice.rating} (${practice.ratingCount})</span>
+                            <span class="stat-item">👥 ${practice.users} مستخدم</span>
+                            <span class="stat-item">✅ ${practice.applied} طبّقوها</span>
+                            ${practice.successRate ? `
+                                <span class="stat-item success-rate">📊 ${practice.successRate}% نجاح</span>
+                            ` : ''}
+                        </div>
+                        <button class="view-btn" onclick="event.stopPropagation(); showPracticeDetail(${practice.id})">
+                            عرض التفاصيل ←
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+
+            updateStats();
+        }
+
+        // Helper functions
+        function getDifficultyLabel(difficulty) {
+            const labels = {
+                'easy': '🟢 سهل',
+                'medium': '🟡 متوسط',
+                'advanced': '🔴 متقدم'
+            };
+            return labels[difficulty] || difficulty;
+        }
+
+        function getCategoryLabel(category) {
+            const labels = {
+                'management': 'إدارة',
+                'technical': 'تقنية',
+                'services': 'خدمات',
+                'marketing': 'تسويق',
+                'hr': 'موارد بشرية',
+                'financial': 'مالية'
+            };
+            return labels[category] || category;
+        }
+
+        // Show practice detail
+        function showPracticeDetail(id) {
+            const practice = practices.find(p => p.id === id);
+            if (!practice) return;
+
+            const modal = document.getElementById('practiceModal');
+            const content = document.getElementById('modalContent');
+
+            content.innerHTML = `
+                ${practice.certified ? `
+                    <div class="certified-badge" style="position: relative; display: inline-flex; margin-bottom: 20px;">
+                        🏆 ممارسة معتمدة - ${practice.certificationLevel === 'gold' ? 'ذهبية' : 'فضية'}
+                    </div>
+                ` : ''}
+                
+                <h2 style="margin-bottom: 20px; padding-left: 50px;">${practice.name}</h2>
+                
+                <div class="practice-meta" style="margin-bottom: 30px;">
+                    <span class="category-badge">📂 ${practice.category}</span>
+                    <span class="meta-item">👤 ${practice.department}</span>
+                    <span class="difficulty-badge difficulty-${practice.difficulty}">
+                        ${getDifficultyLabel(practice.difficulty)}
+                    </span>
+                    <span class="meta-item">⭐ ${practice.rating}/5 (${practice.ratingCount} تقييم)</span>
+                </div>
+
+                <div class="detail-section">
+                    <h3>📖 نظرة عامة</h3>
+                    <p>${practice.overview}</p>
+                </div>
+
+                <div class="detail-section">
+                    <h3>❓ المشكلة التي تحلها</h3>
+                    <p>${practice.problem}</p>
+                </div>
+
+                ${practice.benefits && practice.benefits.length > 0 ? `
+                    <div class="detail-section">
+                        <h3>✅ الفوائد المتوقعة</h3>
+                        <ul>
+                            ${practice.benefits.map(benefit => `<li>${benefit}</li>`).join('')}
+                        </ul>
+                    </div>
+                ` : ''}
+
+                <div class="detail-section">
+                    <h3>📝 خطوات التطبيق (${practice.steps} خطوات)</h3>
+                    <div class="steps-container">
+                        ${generateSampleSteps(practice.steps)}
+                    </div>
+                </div>
+
+                ${practice.successRate ? `
+                    <div class="detail-section">
+                        <h3>📊 النتائج المثبتة</h3>
+                        <div class="metrics-grid">
+                            <div class="metric-card">
+                                <div class="metric-label">معدل النجاح</div>
+                                <div class="metric-value">${practice.successRate}%</div>
+                            </div>
+                            <div class="metric-card">
+                                <div class="metric-label">عدد المستخدمين</div>
+                                <div class="metric-value">${practice.users}</div>
+                            </div>
+                            <div class="metric-card">
+                                <div class="metric-label">التطبيقات الناجحة</div>
+                                <div class="metric-value">${practice.applied}</div>
+                            </div>
+                            <div class="metric-card">
+                                <div class="metric-label">متوسط التقييم</div>
+                                <div class="metric-value">${practice.rating}/5</div>
+                            </div>
+                        </div>
+                    </div>
+                ` : ''}
+
+                <div class="action-buttons">
+                    <button class="btn btn-primary" onclick="applyPractice(${practice.id})">✅ طبّقت هذه الممارسة</button>
+                    <button class="btn btn-success" onclick="alert('شكراً لتقييمك!')">⭐ قيّم الممارسة</button>
+                    <button class="btn btn-secondary" onclick="alert('تم الحفظ!')">💾 حفظ</button>
+                    <button class="btn btn-secondary" onclick="alert('تمت المشاركة!')">🔗 شارك</button>
+                </div>
+            `;
+
+            modal.classList.add('active');
+        }
+
+        function generateSampleSteps(count) {
+            const sampleSteps = [
+                { title: "التحضير المسبق", duration: "30 دقيقة", desc: "تحديد الهدف الواضح وإعداد جدول الأعمال وإرسال الدعوات", tip: "أرسل جدول الأعمال قبل 48 ساعة" },
+                { title: "بداية الاجتماع", duration: "5 دقائق", desc: "مراجعة الأهداف والوقت المتاح وتحديد المسؤوليات", tip: "ابدأ في الوقت المحدد حتى لو لم يحضر الجميع" },
+                { title: "إدارة النقاش", duration: "متغير", desc: "الالتزام بجدول الأعمال وتشجيع المشاركة وتوثيق القرارات", tip: "عيّن شخصاً لكتابة المحضر" },
+                { title: "الختام والمتابعة", duration: "10 دقائق", desc: "تلخيص القرارات وتحديد المهام والمسؤوليات", tip: "أرسل المحضر خلال 24 ساعة" },
+                { title: "التقييم والتحسين", duration: "5 دقائق", desc: "جمع الملاحظات وتطبيق التحسينات", tip: "استخدم استبيان سريع بعد الاجتماع" }
+            ];
+
+            return sampleSteps.slice(0, count).map((step, index) => `
+                <div class="step-card">
+                    <div class="step-header">
+                        <div class="step-number">${index + 1}</div>
+                        <div class="step-title">${step.title}</div>
+                        <div class="step-duration">⏱️ ${step.duration}</div>
+                    </div>
+                    <p class="step-description">${step.desc}</p>
+                    ${step.tip ? `
+                        <div class="step-tips">
+                            <strong>💡 نصيحة:</strong> ${step.tip}
+                        </div>
+                    ` : ''}
+                </div>
+            `).join('');
+        }
+
+        // Close modal
+        function closeModal() {
+            document.getElementById('practiceModal').classList.remove('active');
+        }
+
+        // Show add practice form
+        function showAddPracticeForm() {
+            document.getElementById('addPracticeModal').classList.add('active');
+            resetForm();
+        }
+
+        // Close add practice form
+        function closeAddPracticeForm() {
+            document.getElementById('addPracticeModal').classList.remove('active');
+            resetForm();
+        }
+
+        // Reset form
+        function resetForm() {
+            currentStep = 1;
+            newPractice = {};
+            document.getElementById('addPracticeForm').reset();
+            document.querySelectorAll('.form-step').forEach(step => step.classList.remove('active'));
+            document.querySelector('.form-step[data-step="1"]').classList.add('active');
+            document.querySelectorAll('.wizard-step').forEach(step => {
+                step.classList.remove('active', 'completed');
+            });
+            document.querySelector('.wizard-step[data-step="1"]').classList.add('active');
+            document.querySelectorAll('.category-option').forEach(el => {
+                el.classList.remove('selected');
+            });
+            document.getElementById('prevBtn').style.display = 'none';
+            document.getElementById('nextBtn').textContent = 'التالي ←';
+            document.getElementById('successMessage').style.display = 'none';
+        }
+
+        // Next step
+        function nextStep() {
+            if (!validateStep(currentStep)) {
+                return;
+            }
+
+            saveStepData(currentStep);
+
+            if (currentStep < 5) {
+                document.querySelector(`.wizard-step[data-step="${currentStep}"]`).classList.remove('active');
+                document.querySelector(`.wizard-step[data-step="${currentStep}"]`).classList.add('completed');
+                document.querySelector(`.form-step[data-step="${currentStep}"]`).classList.remove('active');
+                
+                currentStep++;
+                
+                document.querySelector(`.form-step[data-step="${currentStep}"]`).classList.add('active');
+                document.querySelector(`.wizard-step[data-step="${currentStep}"]`).classList.add('active');
+                
+                document.getElementById('prevBtn').style.display = 'block';
+                
+                if (currentStep === 5) {
+                    document.getElementById('nextBtn').textContent = 'حفظ الممارسة ✓';
+                }
+            } else {
+                savePractice();
+            }
+        }
+
+        // Previous step
+        function previousStep() {
+            if (currentStep > 1) {
+                document.querySelector(`.wizard-step[data-step="${currentStep}"]`).classList.remove('active');
+                document.querySelector(`.form-step[data-step="${currentStep}"]`).classList.remove('active');
+                
+                currentStep--;
+                
+                document.querySelector(`.wizard-step[data-step="${currentStep}"]`).classList.remove('completed');
+                document.querySelector(`.wizard-step[data-step="${currentStep}"]`).classList.add('active');
+                document.querySelector(`.form-step[data-step="${currentStep}"]`).classList.add('active');
+                
+                if (currentStep === 1) {
+                    document.getElementById('prevBtn').style.display = 'none';
+                }
+                document.getElementById('nextBtn').textContent = 'التالي ←';
+            }
+        }
+
+        // Validate step
+        function validateStep(step) {
+            let isValid = true;
+            let message = '';
+
+            switch(step) {
+                case 1:
+                    if (!document.getElementById('practiceName').value) {
+                        message = 'الرجاء إدخال اسم الممارسة';
+                        isValid = false;
+                    } else if (!document.getElementById('department').value) {
+                        message = 'الرجاء إدخال القسم';
+                        isValid = false;
+                    } else if (!document.getElementById('practiceCategory').value) {
+                        message = 'الرجاء اختيار الفئة';
+                        isValid = false;
+                    } else if (!document.getElementById('practiceDifficulty').value) {
+                        message = 'الرجاء اختيار مستوى الصعوبة';
+                        isValid = false;
+                    }
+                    break;
+                case 2:
+                    if (!document.getElementById('overview').value) {
+                        message = 'الرجاء إدخال نظرة عامة';
+                        isValid = false;
+                    } else if (!document.getElementById('problem').value) {
+                        message = 'الرجاء وصف المشكلة';
+                        isValid = false;
+                    }
+                    break;
+                case 3:
+                    if (!document.getElementById('steps').value) {
+                        message = 'الرجاء إدخال خطوات التطبيق';
+                        isValid = false;
+                    }
+                    break;
+            }
+
+            if (!isValid) {
+                alert(message);
+            }
+
+            return isValid;
+        }
+
+        // Save step data
+        function saveStepData(step) {
+            switch(step) {
+                case 1:
+                    newPractice.name = document.getElementById('practiceName').value;
+                    newPractice.department = document.getElementById('department').value;
+                    newPractice.category = document.getElementById('practiceCategory').value;
+                    newPractice.difficulty = document.getElementById('practiceDifficulty').value;
+                    break;
+                case 2:
+                    newPractice.overview = document.getElementById('overview').value;
+                    newPractice.problem = document.getElementById('problem').value;
+                    newPractice.solution = document.getElementById('solution').value;
+                    newPractice.benefits = document.getElementById('benefits').value.split('\n').filter(b => b.trim());
+                    break;
+                case 3:
+                    newPractice.steps = document.getElementById('steps').value;
+                    newPractice.timeline = document.getElementById('timeline').value;
+                    newPractice.tips = document.getElementById('tips').value;
+                    break;
+                case 4:
+                    newPractice.successRate = document.getElementById('successRate').value;
+                    newPractice.results = document.getElementById('results').value;
+                    newPractice.caseStudy = document.getElementById('caseStudy').value;
+                    newPractice.testimonials = document.getElementById('testimonials').value;
+                    break;
+                case 5:
+                    newPractice.additionalNotes = document.getElementById('additionalNotes').value;
+                    newPractice.requestCertification = document.getElementById('requestCertification').checked;
+                    break;
+            }
+        }
+
+        // Save practice
+        function savePractice() {
+            const stepsCount = newPractice.steps.split('\n').filter(s => s.trim()).length;
+            
+            const practice = {
+                id: practices.length + 1,
+                name: newPractice.name,
+                category: getCategoryLabel(newPractice.category),
+                department: newPractice.department,
+                difficulty: newPractice.difficulty,
+                certified: newPractice.requestCertification,
+                certificationLevel: newPractice.requestCertification ? 'pending' : null,
+                overview: newPractice.overview,
+                problem: newPractice.problem,
+                benefits: newPractice.benefits,
+                successRate: parseInt(newPractice.successRate) || 0,
+                users: 0,
+                applied: 0,
+                rating: 0,
+                ratingCount: 0,
+                steps: stepsCount
+            };
+
+            practices.unshift(practice);
+            
+            document.getElementById('successMessage').style.display = 'block';
+            document.getElementById('nextBtn').style.display = 'none';
+            document.getElementById('prevBtn').style.display = 'none';
+
+            renderPractices();
+
+            setTimeout(() => {
+                closeAddPracticeForm();
+            }, 2000);
+        }
+
+        // Handle search
+        function handleSearch(e) {
+            const searchTerm = e.target.value.toLowerCase();
+            const filtered = practices.filter(practice => 
+                practice.name.toLowerCase().includes(searchTerm) ||
+                practice.overview.toLowerCase().includes(searchTerm) ||
+                practice.department.toLowerCase().includes(searchTerm) ||
+                practice.category.toLowerCase().includes(searchTerm)
+            );
+            renderPractices(filtered);
+        }
+
+        // Handle filter
+        function handleFilter(e) {
+            const btn = e.target;
+            
+            if (btn.dataset.filter) {
+                btn.parentElement.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                
+                const filter = btn.dataset.filter;
+                
+                if (filter === 'all') {
+                    renderPractices(practices);
+                } else if (filter === 'certified') {
+                    renderPractices(practices.filter(p => p.certified));
+                } else if (filter === 'popular') {
+                    renderPractices(practices.filter(p => p.applied > 50));
+                }
+            } else if (btn.dataset.difficulty) {
+                const difficulty = btn.dataset.difficulty;
+                if (btn.classList.contains('active')) {
+                    btn.classList.remove('active');
+                    renderPractices(practices);
+                } else {
+                    btn.parentElement.querySelectorAll('[data-difficulty]').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    renderPractices(practices.filter(p => p.difficulty === difficulty));
+                }
+            }
+        }
+
+        // Update statistics
+        function updateStats() {
+            document.getElementById('totalPractices').textContent = practices.length;
+            document.getElementById('certifiedPractices').textContent = practices.filter(p => p.certified).length;
+            
+            if (practices.length > 0) {
+                const avgRating = (practices.reduce((sum, p) => sum + p.rating, 0) / practices.length).toFixed(1);
+                document.getElementById('avgRating').textContent = avgRating;
+            }
+        }
+
+        // Apply practice
+        function applyPractice(id) {
+            const practice = practices.find(p => p.id === id);
+            if (practice) {
+                practice.applied++;
+                practice.users++;
+                alert(`✅ رائع! تم تسجيل تطبيقك لممارسة "${practice.name}"\n\nسنتابع معك التقدم ونطلب تقييمك بعد الانتهاء.`);
+                renderPractices();
+                closeModal();
+            }
+        }
+
+        // Show my practices
+        function showMyPractices() {
+            alert('📋 ممارساتي المطبقة\n\nهذه الميزة ستعرض قائمة بجميع الممارسات التي طبقتها مع حالة كل منها.');
+        }
+
+        // Show analytics
+        function showAnalytics() {
+            const totalUsers = practices.reduce((sum, p) => sum + p.users, 0);
+            const totalApplications = practices.reduce((sum, p) => sum + p.applied, 0);
+            const avgSuccess = (practices.reduce((sum, p) => sum + (p.successRate || 0), 0) / practices.length).toFixed(0);
+            
+            alert('📊 التحليلات والمقارنات\n\n' +
+                  `إجمالي الممارسات: ${practices.length}\n` +
+                  `الممارسات المعتمدة: ${practices.filter(p => p.certified).length}\n` +
+                  `إجمالي المستخدمين: ${totalUsers}\n` +
+                  `إجمالي التطبيقات: ${totalApplications}\n` +
+                  `متوسط معدل النجاح: ${avgSuccess}%`
+            );
+        }
+    </script>
+</body>
+</html>
