@@ -1,0 +1,1224 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>نظام ابتكار المؤسسة - إدارة الأفكار</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Segoe UI', 'Tajawal', Tahoma, sans-serif;
+            background: linear-gradient(135deg, #FF6B35 0%, #F7B801 100%);
+            min-height: 100vh;
+            padding: 20px;
+            direction: rtl;
+        }
+        
+        .container { max-width: 1400px; margin: 0 auto; }
+        
+        .header {
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        
+        .header h1 {
+            color: #FF6B35;
+            font-size: 32px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .header p { color: #666; font-size: 16px; }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .stat-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s;
+            cursor: pointer;
+        }
+        
+        .stat-card:hover { transform: translateY(-5px); }
+        .stat-icon { font-size: 36px; margin-bottom: 10px; }
+        .stat-value { font-size: 32px; font-weight: bold; color: #FF6B35; margin-bottom: 5px; }
+        .stat-label { color: #666; font-size: 13px; }
+        .stat-trend { font-size: 12px; color: #06A77D; margin-top: 5px; }
+        
+        .main-actions {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .btn-primary { background: #FF6B35; color: white; }
+        .btn-primary:hover { background: #E85A2A; transform: scale(1.05); }
+        .btn-secondary { background: #004E89; color: white; }
+        .btn-secondary:hover { background: #003A67; }
+        .btn-success { background: #06A77D; color: white; }
+        .btn-success:hover { background: #058968; }
+        .btn-cancel { background: #757575; color: white; }
+        .btn-cancel:hover { background: #616161; }
+        
+        .ideas-container {
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        
+        .section-title {
+            font-size: 24px;
+            color: #333;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .search-bar {
+            width: 100%;
+            padding: 15px 20px;
+            border: 2px solid #E0E0E0;
+            border-radius: 10px;
+            font-size: 16px;
+            margin-bottom: 15px;
+            transition: border-color 0.3s;
+        }
+        
+        .search-bar:focus { outline: none; border-color: #FF6B35; }
+        
+        .filters {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        
+        .filter-label { font-size: 14px; color: #666; font-weight: 600; }
+        
+        .filter-btn {
+            padding: 8px 16px;
+            border: 2px solid #E0E0E0;
+            background: white;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 14px;
+        }
+        
+        .filter-btn:hover { border-color: #FF6B35; color: #FF6B35; }
+        .filter-btn.active { background: #FF6B35; color: white; border-color: #FF6B35; }
+        
+        .idea-card {
+            border: 2px solid #E0E0E0;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 20px;
+            transition: all 0.3s;
+            cursor: pointer;
+            position: relative;
+        }
+        
+        .idea-card:hover {
+            border-color: #FF6B35;
+            box-shadow: 0 5px 20px rgba(255, 107, 53, 0.15);
+            transform: translateX(-5px);
+        }
+        
+        .status-badge {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .status-new { background: #E3F2E1; color: #06A77D; }
+        .status-review { background: #FFF3E0; color: #FF9800; }
+        .status-accepted { background: #E8F5E9; color: #4CAF50; }
+        .status-progress { background: #E3F2FD; color: #1976D2; }
+        
+        .hot-badge {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: linear-gradient(135deg, #FF6B35, #F7B801);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        
+        .idea-header { margin-bottom: 15px; padding-left: 100px; padding-right: 100px; }
+        .idea-title { font-size: 20px; color: #333; font-weight: 600; margin-bottom: 10px; }
+        
+        .idea-meta {
+            display: flex;
+            gap: 15px;
+            color: #666;
+            font-size: 13px;
+            flex-wrap: wrap;
+        }
+        
+        .meta-item { display: flex; align-items: center; gap: 5px; }
+        
+        .category-badge {
+            background: #FFE8E0;
+            color: #FF6B35;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        .idea-excerpt {
+            color: #555;
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+        
+        .idea-benefits {
+            background: #F8F9FA;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            border-right: 4px solid #06A77D;
+        }
+        
+        .idea-benefits h4 { color: #06A77D; font-size: 14px; margin-bottom: 8px; }
+        
+        .idea-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 15px;
+            border-top: 1px solid #E0E0E0;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .idea-stats {
+            display: flex;
+            gap: 20px;
+            font-size: 13px;
+            color: #666;
+        }
+        
+        .stat-item { display: flex; align-items: center; gap: 5px; }
+        
+        .vote-btns {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .vote-btn {
+            padding: 8px 15px;
+            border: 2px solid #E0E0E0;
+            background: white;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+        
+        .vote-btn:hover { border-color: #FF6B35; }
+        .vote-btn.voted { background: #FF6B35; color: white; border-color: #FF6B35; }
+        
+        .view-btn {
+            padding: 8px 20px;
+            background: #FF6B35;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 14px;
+        }
+        
+        .view-btn:hover { background: #E85A2A; transform: scale(1.05); }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            overflow-y: auto;
+        }
+        
+        .modal.active { display: flex; }
+        
+        .modal-content {
+            background: white;
+            border-radius: 16px;
+            padding: 40px;
+            max-width: 1000px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+        }
+        
+        .close-btn {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            font-size: 30px;
+            cursor: pointer;
+            color: #666;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background: #f5f5f5;
+            transition: all 0.3s;
+        }
+        
+        .close-btn:hover { color: white; background: #F44336; }
+        
+        .detail-section { margin-bottom: 30px; }
+        .detail-section h3 {
+            color: #FF6B35;
+            margin-bottom: 15px;
+            font-size: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .detail-section p, .detail-section ul { color: #555; line-height: 1.8; }
+        
+        .wizard-steps {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 40px;
+            position: relative;
+            padding: 0 10px;
+        }
+        
+        .wizard-steps::before {
+            content: '';
+            position: absolute;
+            top: 20px;
+            right: 60px;
+            left: 60px;
+            height: 2px;
+            background: #E0E0E0;
+            z-index: 0;
+        }
+        
+        .wizard-step {
+            flex: 1;
+            text-align: center;
+            position: relative;
+            z-index: 1;
+            max-width: 180px;
+        }
+        
+        .step-number-wizard {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: #E0E0E0;
+            color: #999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 10px;
+            font-weight: bold;
+            transition: all 0.3s;
+            font-size: 18px;
+        }
+        
+        .wizard-step.active .step-number-wizard {
+            background: #FF6B35;
+            color: white;
+            box-shadow: 0 4px 12px rgba(255, 107, 53, 0.3);
+            transform: scale(1.1);
+        }
+        
+        .wizard-step.completed .step-number-wizard { background: #06A77D; color: white; }
+        .wizard-step.completed .step-number-wizard::after { content: '✓'; }
+        
+        .step-label { font-size: 13px; color: #666; font-weight: 600; }
+        .wizard-step.active .step-label { color: #FF6B35; }
+        
+        .form-step { display: none; }
+        .form-step.active { display: block; animation: fadeIn 0.3s ease-in; }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .form-group { margin-bottom: 25px; }
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 600;
+            font-size: 15px;
+        }
+        
+        .form-group label .required { color: #F44336; }
+        
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #E0E0E0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+            font-family: inherit;
+        }
+        
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #FF6B35;
+        }
+        
+        .form-group textarea { min-height: 120px; resize: vertical; }
+        
+        .category-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+            gap: 12px;
+        }
+        
+        .category-option {
+            padding: 20px;
+            border: 2px solid #E0E0E0;
+            border-radius: 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: white;
+        }
+        
+        .category-option:hover { border-color: #FF6B35; transform: translateY(-2px); }
+        .category-option.selected { border-color: #FF6B35; background: #FFE8E0; }
+        .category-icon { font-size: 32px; margin-bottom: 8px; }
+        
+        .wizard-actions {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 2px solid #E0E0E0;
+        }
+        
+        .success-message {
+            background: #E8F5E9;
+            border: 2px solid #4CAF50;
+            border-radius: 12px;
+            padding: 30px;
+            text-align: center;
+            margin: 20px 0;
+        }
+        
+        .success-icon { font-size: 64px; margin-bottom: 20px; }
+        .success-message h3 { color: #4CAF50; margin-bottom: 10px; font-size: 24px; }
+        .success-message p { color: #666; margin-bottom: 20px; }
+        
+        @media (max-width: 768px) {
+            .stats-grid { grid-template-columns: 1fr; }
+            .main-actions { flex-direction: column; }
+            .btn { width: 100%; justify-content: center; }
+            .modal-content { padding: 20px; }
+            .wizard-steps { flex-wrap: wrap; }
+            .wizard-step { flex-basis: 50%; margin-bottom: 20px; }
+            .idea-header { padding-left: 0; padding-right: 0; padding-top: 60px; }
+            .hot-badge, .status-badge { position: static; display: inline-flex; margin: 5px; }
+        }
+        
+        .empty-state { text-align: center; padding: 60px 20px; color: #666; }
+        .empty-state-icon { font-size: 80px; margin-bottom: 20px; opacity: 0.5; }
+        
+        .action-buttons { display: flex; gap: 10px; margin-top: 30px; flex-wrap: wrap; }
+        
+        .challenge-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+        }
+        
+        .challenge-card h3 { margin-bottom: 10px; font-size: 20px; }
+        .challenge-info { display: flex; gap: 20px; margin-top: 15px; flex-wrap: wrap; }
+        .challenge-info-item { display: flex; align-items: center; gap: 5px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1><span>💡</span>نظام ابتكار المؤسسة - إدارة الأفكار</h1>
+            <p>شارك أفكارك المبتكرة وساهم في تطوير المنظمة - كل فكرة تستحق الاستماع!</p>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon">💡</div>
+                <div class="stat-value" id="totalIdeas">3</div>
+                <div class="stat-label">إجمالي الأفكار</div>
+                <div class="stat-trend">↗ +15 هذا الشهر</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">👥</div>
+                <div class="stat-value">3</div>
+                <div class="stat-label">مبتكرون نشطون</div>
+                <div class="stat-trend">↗ +2</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">✅</div>
+                <div class="stat-value">1</div>
+                <div class="stat-label">أفكار مقبولة</div>
+                <div class="stat-trend">↗ +1</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">🚀</div>
+                <div class="stat-value">1</div>
+                <div class="stat-label">قيد التنفيذ</div>
+                <div class="stat-trend">→ مستقر</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">🏆</div>
+                <div class="stat-value">0</div>
+                <div class="stat-label">منجزة</div>
+                <div class="stat-trend">قريباً!</div>
+            </div>
+        </div>
+
+        <div class="main-actions">
+            <button class="btn btn-primary" onclick="showAddIdeaForm()">
+                <span>💡</span>شارك فكرتك المبتكرة
+            </button>
+            <button class="btn btn-secondary" onclick="showChallenges()">
+                <span>🎯</span>التحديات المفتوحة
+            </button>
+            <button class="btn btn-success" onclick="showLeaderboard()">
+                <span>🏆</span>لوحة المتصدرين
+            </button>
+        </div>
+
+        <div class="ideas-container">
+            <h2 class="section-title"><span>🔥</span>بنك الأفكار</h2>
+
+            <input type="text" class="search-bar" id="searchBar" placeholder="🔍 ابحث عن فكرة مبتكرة...">
+
+            <div class="filters">
+                <span class="filter-label">عرض:</span>
+                <button class="filter-btn active" data-filter="all">الكل</button>
+                <button class="filter-btn" data-filter="hot">🔥 ساخنة</button>
+                <button class="filter-btn" data-filter="new">🆕 جديدة</button>
+                <button class="filter-btn" data-filter="accepted">✅ مقبولة</button>
+                <span class="filter-label" style="margin-right: 20px;">الفئة:</span>
+                <button class="filter-btn" data-category="technology">💻 تقنية</button>
+                <button class="filter-btn" data-category="services">🤝 خدمات</button>
+                <button class="filter-btn" data-category="processes">⚙️ عمليات</button>
+            </div>
+
+            <div id="ideasContainer"></div>
+        </div>
+    </div>
+
+    <div id="ideaModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeModal()">×</span>
+            <div id="modalContent"></div>
+        </div>
+    </div>
+
+    <div id="addIdeaModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeAddIdeaForm()">×</span>
+            <h2 style="margin-bottom: 30px;">💡 شارك فكرتك المبتكرة</h2>
+            
+            <div class="wizard-steps">
+                <div class="wizard-step active" data-step="1">
+                    <div class="step-number-wizard">1</div>
+                    <div class="step-label">معلومات الفكرة</div>
+                </div>
+                <div class="wizard-step" data-step="2">
+                    <div class="step-number-wizard">2</div>
+                    <div class="step-label">الوصف والفوائد</div>
+                </div>
+                <div class="wizard-step" data-step="3">
+                    <div class="step-number-wizard">3</div>
+                    <div class="step-label">الجدوى والموارد</div>
+                </div>
+                <div class="wizard-step" data-step="4">
+                    <div class="step-number-wizard">4</div>
+                    <div class="step-label">المراجعة والتقديم</div>
+                </div>
+            </div>
+
+            <form id="addIdeaForm">
+                <div class="form-step active" data-step="1">
+                    <div class="form-group">
+                        <label>عنوان الفكرة <span class="required">*</span></label>
+                        <input type="text" id="ideaTitle" required placeholder="مثال: تطبيق جوال للخدمات الداخلية">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>الفئة <span class="required">*</span></label>
+                        <div class="category-grid">
+                            <div class="category-option" data-category="technology">
+                                <div class="category-icon">💻</div>
+                                <div>تقنية</div>
+                            </div>
+                            <div class="category-option" data-category="services">
+                                <div class="category-icon">🤝</div>
+                                <div>خدمات</div>
+                            </div>
+                            <div class="category-option" data-category="products">
+                                <div class="category-icon">📦</div>
+                                <div>منتجات</div>
+                            </div>
+                            <div class="category-option" data-category="processes">
+                                <div class="category-icon">⚙️</div>
+                                <div>عمليات</div>
+                            </div>
+                            <div class="category-option" data-category="marketing">
+                                <div class="category-icon">📣</div>
+                                <div>تسويق</div>
+                            </div>
+                            <div class="category-option" data-category="hr">
+                                <div class="category-icon">👥</div>
+                                <div>موارد بشرية</div>
+                            </div>
+                        </div>
+                        <input type="hidden" id="ideaCategory" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>نوع الفكرة <span class="required">*</span></label>
+                        <select id="ideaType" required>
+                            <option value="">اختر النوع...</option>
+                            <option value="new">جديدة كلياً</option>
+                            <option value="improvement">تحسين على موجود</option>
+                            <option value="problem">حل مشكلة</option>
+                            <option value="cost">توفير تكاليف</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-step" data-step="2">
+                    <div class="form-group">
+                        <label>المشكلة أو الفرصة <span class="required">*</span></label>
+                        <textarea id="problem" required placeholder="ما المشكلة التي تحلها فكرتك أو الفرصة التي تستغلها؟"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label>الحل المقترح <span class="required">*</span></label>
+                        <textarea id="solution" required placeholder="اشرح فكرتك بالتفصيل..."></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label>كيف تعمل الفكرة؟</label>
+                        <textarea id="howItWorks" placeholder="اشرح آلية عمل الفكرة خطوة بخطوة..."></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label>الفوائد المتوقعة (فائدة واحدة في كل سطر)</label>
+                        <textarea id="benefits" placeholder="للمنظمة: توفير 40% من الوقت
+للموظفين: سهولة الوصول للخدمات
+للعملاء: تحسين التجربة"></textarea>
+                    </div>
+                </div>
+
+                <div class="form-step" data-step="3">
+                    <div class="form-group">
+                        <label>الميزانية المقدرة (ريال)</label>
+                        <input type="number" id="budget" placeholder="مثال: 150000">
+                    </div>
+
+                    <div class="form-group">
+                        <label>الوقت المتوقع للتنفيذ</label>
+                        <input type="text" id="timeframe" placeholder="مثال: 4-6 أشهر">
+                    </div>
+
+                    <div class="form-group">
+                        <label>حجم الفريق المطلوب</label>
+                        <input type="number" id="teamSize" placeholder="عدد الأشخاص">
+                    </div>
+
+                    <div class="form-group">
+                        <label>المخاطر المحتملة</label>
+                        <textarea id="risks" placeholder="اذكر المخاطر المحتملة وكيفية التعامل معها..."></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label>العائد المتوقع (ROI)</label>
+                        <textarea id="roi" placeholder="صف العائد المتوقع على الاستثمار..."></textarea>
+                    </div>
+                </div>
+
+                <div class="form-step" data-step="4">
+                    <div class="form-group">
+                        <label>ملاحظات إضافية</label>
+                        <textarea id="notes" placeholder="أي معلومات إضافية تود إضافتها..."></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label>
+                            <input type="checkbox" id="collaborate" style="width: auto; margin-left: 10px;">
+                            أنا منفتح للتعاون مع الآخرين على هذه الفكرة
+                        </label>
+                    </div>
+
+                    <div class="form-group">
+                        <label>
+                            <input type="checkbox" id="implement" style="width: auto; margin-left: 10px;">
+                            أنا مستعد للمساهمة في تنفيذ هذه الفكرة
+                        </label>
+                    </div>
+
+                    <div class="success-message" style="display: none;" id="successMessage">
+                        <div class="success-icon">🎉</div>
+                        <h3>تم تقديم فكرتك بنجاح!</h3>
+                        <p>شكراً لمساهمتك في ابتكار المنظمة. سيتم مراجعة فكرتك قريباً.</p>
+                    </div>
+                </div>
+
+                <div class="wizard-actions">
+                    <button type="button" class="btn btn-cancel" onclick="closeAddIdeaForm()">إلغاء</button>
+                    <div style="display: flex; gap: 10px;">
+                        <button type="button" class="btn btn-secondary" id="prevBtn" onclick="previousStep()" style="display: none;">
+                            ← السابق
+                        </button>
+                        <button type="button" class="btn btn-primary" id="nextBtn" onclick="nextStep()">
+                            التالي ←
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        let ideas = [
+            {
+                id: 1,
+                title: "تطبيق جوال للخدمات الداخلية",
+                category: "تقنية",
+                type: "new",
+                submitter: "سارة أحمد",
+                department: "تقنية المعلومات",
+                status: "review",
+                isHot: true,
+                problem: "الموظفون يواجهون صعوبة في الوصول للخدمات الداخلية",
+                solution: "تطوير تطبيق جوال متكامل لجميع الخدمات الداخلية",
+                benefits: ["توفير 60% من الوقت", "سهولة الوصول 24/7", "تحسين الكفاءة"],
+                budget: 150000,
+                timeframe: "4-6 أشهر",
+                upvotes: 85,
+                comments: 23,
+                views: 156,
+                submittedDate: "منذ 3 أيام"
+            },
+            {
+                id: 2,
+                title: "برنامج تدريب افتراضي تفاعلي",
+                category: "موارد بشرية",
+                type: "improvement",
+                submitter: "محمد سالم",
+                department: "التدريب والتطوير",
+                status: "accepted",
+                problem: "التدريب التقليدي مكلف ومحدود",
+                solution: "برنامج تدريب باستخدام الواقع الافتراضي",
+                benefits: ["تقليل التكاليف 50%", "تدريب أكثر فعالية", "قابل للتوسع"],
+                budget: 200000,
+                timeframe: "6 أشهر",
+                upvotes: 62,
+                comments: 15,
+                views: 98,
+                submittedDate: "منذ أسبوع"
+            },
+            {
+                id: 3,
+                title: "نظام تقييم الأداء التلقائي",
+                category: "موارد بشرية",
+                type: "improvement",
+                submitter: "فاطمة علي",
+                department: "الموارد البشرية",
+                status: "new",
+                problem: "تقييم الأداء اليدوي يستغرق وقتاً طويلاً",
+                solution: "نظام ذكي لتقييم الأداء بناءً على المؤشرات",
+                benefits: ["توفير الوقت", "موضوعية أكثر", "تقارير تلقائية"],
+                upvotes: 12,
+                comments: 3,
+                views: 24,
+                submittedDate: "منذ ساعة"
+            }
+        ];
+
+        let currentStep = 1;
+        let newIdea = {};
+
+        document.addEventListener('DOMContentLoaded', function() {
+            renderIdeas();
+            setupEventListeners();
+        });
+
+        function setupEventListeners() {
+            document.getElementById('searchBar').addEventListener('input', handleSearch);
+            
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.addEventListener('click', handleFilter);
+            });
+
+            document.querySelectorAll('.category-option').forEach(option => {
+                option.addEventListener('click', function() {
+                    const parent = this.parentElement;
+                    parent.querySelectorAll('.category-option').forEach(o => o.classList.remove('selected'));
+                    this.classList.add('selected');
+                    document.getElementById('ideaCategory').value = this.dataset.category;
+                });
+            });
+
+            window.onclick = function(event) {
+                const ideaModal = document.getElementById('ideaModal');
+                const addModal = document.getElementById('addIdeaModal');
+                if (event.target === ideaModal) closeModal();
+                if (event.target === addModal) closeAddIdeaForm();
+            }
+        }
+
+        function renderIdeas(filteredIdeas = ideas) {
+            const container = document.getElementById('ideasContainer');
+            
+            if (filteredIdeas.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">💡</div>
+                        <h3>لا توجد أفكار</h3>
+                        <p>كن أول من يشارك فكرة مبتكرة!</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = filteredIdeas.map(idea => `
+                <div class="idea-card" onclick="showIdeaDetail(${idea.id})">
+                    ${idea.isHot ? '<div class="hot-badge">🔥 ساخنة</div>' : ''}
+                    <div class="status-badge status-${idea.status}">
+                        ${getStatusLabel(idea.status)}
+                    </div>
+                    
+                    <div class="idea-header">
+                        <div class="idea-title">${idea.title}</div>
+                        <div class="idea-meta">
+                            <span class="category-badge">📂 ${idea.category}</span>
+                            <span class="meta-item">👤 ${idea.submitter}</span>
+                            <span class="meta-item">📅 ${idea.submittedDate}</span>
+                        </div>
+                    </div>
+
+                    <p class="idea-excerpt">${idea.solution.substring(0, 120)}...</p>
+
+                    ${idea.benefits && idea.benefits.length > 0 ? `
+                        <div class="idea-benefits">
+                            <h4>✨ الفوائد:</h4>
+                            ${idea.benefits.slice(0, 2).map(b => `• ${b}`).join('<br>')}
+                        </div>
+                    ` : ''}
+
+                    <div class="idea-footer">
+                        <div class="idea-stats">
+                            <span class="stat-item">👁️ ${idea.views}</span>
+                            <span class="stat-item">💬 ${idea.comments}</span>
+                            ${idea.budget ? `<span class="stat-item">💰 ${idea.budget.toLocaleString()} ر.س</span>` : ''}
+                        </div>
+                        <div style="display: flex; gap: 10px; align-items: center;">
+                            <div class="vote-btns">
+                                <button class="vote-btn" onclick="event.stopPropagation(); voteIdea(${idea.id}, 'up')">
+                                    👍 ${idea.upvotes}
+                                </button>
+                            </div>
+                            <button class="view-btn" onclick="event.stopPropagation(); showIdeaDetail(${idea.id})">
+                                عرض التفاصيل ←
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+
+            updateStats();
+        }
+
+        function getStatusLabel(status) {
+            const labels = {
+                'new': '🆕 جديدة',
+                'review': '🔍 قيد المراجعة',
+                'accepted': '✅ مقبولة',
+                'progress': '⚡ قيد التنفيذ',
+                'completed': '✨ منجزة'
+            };
+            return labels[status] || status;
+        }
+
+        function getCategoryLabel(category) {
+            const labels = {
+                'technology': 'تقنية',
+                'services': 'خدمات',
+                'products': 'منتجات',
+                'processes': 'عمليات',
+                'marketing': 'تسويق',
+                'hr': 'موارد بشرية'
+            };
+            return labels[category] || category;
+        }
+
+        function showIdeaDetail(id) {
+            const idea = ideas.find(i => i.id === id);
+            if (!idea) return;
+
+            const modal = document.getElementById('ideaModal');
+            const content = document.getElementById('modalContent');
+
+            content.innerHTML = `
+                ${idea.isHot ? '<div class="hot-badge" style="position: relative; display: inline-flex; margin-bottom: 15px;">🔥 فكرة ساخنة</div>' : ''}
+                <div class="status-badge status-${idea.status}" style="position: relative; display: inline-flex; margin-bottom: 15px; margin-right: 10px;">
+                    ${getStatusLabel(idea.status)}
+                </div>
+                
+                <h2 style="margin-bottom: 20px;">${idea.title}</h2>
+                
+                <div class="idea-meta" style="margin-bottom: 30px;">
+                    <span class="category-badge">📂 ${idea.category}</span>
+                    <span class="meta-item">👤 ${idea.submitter} - ${idea.department}</span>
+                    <span class="meta-item">📅 ${idea.submittedDate}</span>
+                </div>
+
+                <div class="idea-stats" style="margin-bottom: 30px; padding: 15px; background: #F8F9FA; border-radius: 8px;">
+                    <span class="stat-item">👁️ ${idea.views} مشاهدة</span>
+                    <span class="stat-item">👍 ${idea.upvotes} تأييد</span>
+                    <span class="stat-item">💬 ${idea.comments} تعليق</span>
+                </div>
+
+                <div class="detail-section">
+                    <h3>❓ المشكلة أو الفرصة</h3>
+                    <p>${idea.problem}</p>
+                </div>
+
+                <div class="detail-section">
+                    <h3>💡 الحل المقترح</h3>
+                    <p>${idea.solution}</p>
+                </div>
+
+                ${idea.benefits && idea.benefits.length > 0 ? `
+                    <div class="detail-section">
+                        <h3>✨ الفوائد المتوقعة</h3>
+                        <ul>
+                            ${idea.benefits.map(b => `<li>${b}</li>`).join('')}
+                        </ul>
+                    </div>
+                ` : ''}
+
+                ${idea.budget || idea.timeframe ? `
+                    <div class="detail-section">
+                        <h3>💰 الجدوى والموارد</h3>
+                        ${idea.budget ? `<p><strong>الميزانية المقدرة:</strong> ${idea.budget.toLocaleString()} ريال</p>` : ''}
+                        ${idea.timeframe ? `<p><strong>الوقت المتوقع:</strong> ${idea.timeframe}</p>` : ''}
+                    </div>
+                ` : ''}
+
+                <div class="action-buttons">
+                    <button class="btn btn-primary" onclick="voteIdea(${idea.id}, 'up'); closeModal();">👍 أؤيد هذه الفكرة</button>
+                    <button class="btn btn-secondary" onclick="alert('تمت إضافة تعليق!')">💬 أضف تعليقاً</button>
+                    <button class="btn btn-success" onclick="alert('تم الحفظ!')">🔖 احفظ</button>
+                </div>
+            `;
+
+            modal.classList.add('active');
+        }
+
+        function voteIdea(id, type) {
+            const idea = ideas.find(i => i.id === id);
+            if (idea && type === 'up') {
+                idea.upvotes++;
+                renderIdeas();
+                alert('شكراً لتأييدك! 👍');
+            }
+        }
+
+        function closeModal() {
+            document.getElementById('ideaModal').classList.remove('active');
+        }
+
+        function showAddIdeaForm() {
+            document.getElementById('addIdeaModal').classList.add('active');
+            resetForm();
+        }
+
+        function closeAddIdeaForm() {
+            document.getElementById('addIdeaModal').classList.remove('active');
+            resetForm();
+        }
+
+        function resetForm() {
+            currentStep = 1;
+            newIdea = {};
+            document.getElementById('addIdeaForm').reset();
+            document.querySelectorAll('.form-step').forEach(step => step.classList.remove('active'));
+            document.querySelector('.form-step[data-step="1"]').classList.add('active');
+            document.querySelectorAll('.wizard-step').forEach(step => {
+                step.classList.remove('active', 'completed');
+            });
+            document.querySelector('.wizard-step[data-step="1"]').classList.add('active');
+            document.querySelectorAll('.category-option').forEach(el => el.classList.remove('selected'));
+            document.getElementById('prevBtn').style.display = 'none';
+            document.getElementById('nextBtn').textContent = 'التالي ←';
+            document.getElementById('successMessage').style.display = 'none';
+        }
+
+        function nextStep() {
+            if (!validateStep(currentStep)) return;
+
+            saveStepData(currentStep);
+
+            if (currentStep < 4) {
+                document.querySelector(`.wizard-step[data-step="${currentStep}"]`).classList.remove('active');
+                document.querySelector(`.wizard-step[data-step="${currentStep}"]`).classList.add('completed');
+                document.querySelector(`.form-step[data-step="${currentStep}"]`).classList.remove('active');
+                
+                currentStep++;
+                
+                document.querySelector(`.form-step[data-step="${currentStep}"]`).classList.add('active');
+                document.querySelector(`.wizard-step[data-step="${currentStep}"]`).classList.add('active');
+                
+                document.getElementById('prevBtn').style.display = 'block';
+                
+                if (currentStep === 4) {
+                    document.getElementById('nextBtn').textContent = 'تقديم الفكرة 🚀';
+                }
+            } else {
+                submitIdea();
+            }
+        }
+
+        function previousStep() {
+            if (currentStep > 1) {
+                document.querySelector(`.wizard-step[data-step="${currentStep}"]`).classList.remove('active');
+                document.querySelector(`.form-step[data-step="${currentStep}"]`).classList.remove('active');
+                
+                currentStep--;
+                
+                document.querySelector(`.wizard-step[data-step="${currentStep}"]`).classList.remove('completed');
+                document.querySelector(`.wizard-step[data-step="${currentStep}"]`).classList.add('active');
+                document.querySelector(`.form-step[data-step="${currentStep}"]`).classList.add('active');
+                
+                if (currentStep === 1) {
+                    document.getElementById('prevBtn').style.display = 'none';
+                }
+                document.getElementById('nextBtn').textContent = 'التالي ←';
+            }
+        }
+
+        function validateStep(step) {
+            let isValid = true;
+            let message = '';
+
+            switch(step) {
+                case 1:
+                    if (!document.getElementById('ideaTitle').value) {
+                        message = 'الرجاء إدخال عنوان الفكرة';
+                        isValid = false;
+                    } else if (!document.getElementById('ideaCategory').value) {
+                        message = 'الرجاء اختيار الفئة';
+                        isValid = false;
+                    } else if (!document.getElementById('ideaType').value) {
+                        message = 'الرجاء اختيار نوع الفكرة';
+                        isValid = false;
+                    }
+                    break;
+                case 2:
+                    if (!document.getElementById('problem').value) {
+                        message = 'الرجاء وصف المشكلة أو الفرصة';
+                        isValid = false;
+                    } else if (!document.getElementById('solution').value) {
+                        message = 'الرجاء وصف الحل المقترح';
+                        isValid = false;
+                    }
+                    break;
+            }
+
+            if (!isValid) alert(message);
+            return isValid;
+        }
+
+        function saveStepData(step) {
+            switch(step) {
+                case 1:
+                    newIdea.title = document.getElementById('ideaTitle').value;
+                    newIdea.category = document.getElementById('ideaCategory').value;
+                    newIdea.type = document.getElementById('ideaType').value;
+                    break;
+                case 2:
+                    newIdea.problem = document.getElementById('problem').value;
+                    newIdea.solution = document.getElementById('solution').value;
+                    newIdea.howItWorks = document.getElementById('howItWorks').value;
+                    newIdea.benefits = document.getElementById('benefits').value.split('\n').filter(b => b.trim());
+                    break;
+                case 3:
+                    newIdea.budget = document.getElementById('budget').value;
+                    newIdea.timeframe = document.getElementById('timeframe').value;
+                    newIdea.teamSize = document.getElementById('teamSize').value;
+                    newIdea.risks = document.getElementById('risks').value;
+                    newIdea.roi = document.getElementById('roi').value;
+                    break;
+                case 4:
+                    newIdea.notes = document.getElementById('notes').value;
+                    newIdea.collaborate = document.getElementById('collaborate').checked;
+                    newIdea.implement = document.getElementById('implement').checked;
+                    break;
+            }
+        }
+
+        function submitIdea() {
+            const idea = {
+                id: ideas.length + 1,
+                title: newIdea.title,
+                category: getCategoryLabel(newIdea.category),
+                type: newIdea.type,
+                submitter: "أنت",
+                department: "قسمك",
+                status: "new",
+                isHot: false,
+                problem: newIdea.problem,
+                solution: newIdea.solution,
+                benefits: newIdea.benefits,
+                budget: parseInt(newIdea.budget) || 0,
+                timeframe: newIdea.timeframe,
+                upvotes: 0,
+                comments: 0,
+                views: 0,
+                submittedDate: "الآن"
+            };
+
+            ideas.unshift(idea);
+            
+            document.getElementById('successMessage').style.display = 'block';
+            document.getElementById('nextBtn').style.display = 'none';
+            document.getElementById('prevBtn').style.display = 'none';
+
+            renderIdeas();
+
+            setTimeout(() => {
+                closeAddIdeaForm();
+            }, 2500);
+        }
+
+        function handleSearch(e) {
+            const searchTerm = e.target.value.toLowerCase();
+            const filtered = ideas.filter(idea => 
+                idea.title.toLowerCase().includes(searchTerm) ||
+                idea.solution.toLowerCase().includes(searchTerm) ||
+                idea.submitter.toLowerCase().includes(searchTerm)
+            );
+            renderIdeas(filtered);
+        }
+
+        function handleFilter(e) {
+            const btn = e.target;
+            
+            if (btn.dataset.filter) {
+                btn.parentElement.querySelectorAll('[data-filter]').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                
+                const filter = btn.dataset.filter;
+                
+                if (filter === 'all') {
+                    renderIdeas(ideas);
+                } else if (filter === 'hot') {
+                    renderIdeas(ideas.filter(i => i.isHot));
+                } else if (filter === 'new') {
+                    renderIdeas(ideas.filter(i => i.status === 'new'));
+                } else if (filter === 'accepted') {
+                    renderIdeas(ideas.filter(i => i.status === 'accepted'));
+                }
+            } else if (btn.dataset.category) {
+                const category = btn.dataset.category;
+                if (btn.classList.contains('active')) {
+                    btn.classList.remove('active');
+                    renderIdeas(ideas);
+                } else {
+                    btn.parentElement.querySelectorAll('[data-category]').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    renderIdeas(ideas.filter(i => i.category.toLowerCase() === getCategoryLabel(category).toLowerCase()));
+                }
+            }
+        }
+
+        function updateStats() {
+            document.getElementById('totalIdeas').textContent = ideas.length;
+        }
+
+        function showChallenges() {
+            alert('🎯 التحديات المفتوحة\n\n1. تحدي: تحسين تجربة العميل\n   💰 جائزة: 5000 ريال\n   ⏰ ينتهي في 15 يوم\n\n2. تحدي: الاستدامة البيئية\n   💰 جائزة: 3000 ريال\n   ⏰ ينتهي في 30 يوم');
+        }
+
+        function showLeaderboard() {
+            alert('🏆 لوحة المتصدرين\n\n1. 🥇 أحمد محمد - 1250 نقطة\n   8 أفكار مقبولة\n\n2. 🥈 سارة أحمد - 980 نقطة\n   6 أفكار مقبولة\n\n3. 🥉 محمد سالم - 750 نقطة\n   5 أفكار مقبولة');
+        }
+    </script>
+</body>
+</html>
