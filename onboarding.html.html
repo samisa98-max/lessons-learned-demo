@@ -1,0 +1,1138 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>نظام التأهيل التفاعلي المتقدم - Advanced Onboarding System</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        :root {
+            --primary: #2196F3;
+            --success: #4CAF50;
+            --warning: #FF9800;
+            --danger: #F44336;
+            --info: #00BCD4;
+            --purple: #9C27B0;
+        }
+        
+        body {
+            font-family: 'Segoe UI', 'Tajawal', Tahoma, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            direction: rtl;
+        }
+        
+        /* Login Screen */
+        .login-screen {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .login-box {
+            background: white;
+            border-radius: 16px;
+            padding: 40px;
+            max-width: 450px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        
+        .login-logo {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .login-logo h1 {
+            color: var(--primary);
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+        
+        .role-selector {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .role-card {
+            padding: 20px;
+            border: 2px solid #E0E0E0;
+            border-radius: 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .role-card:hover {
+            border-color: var(--primary);
+            transform: translateY(-3px);
+        }
+        
+        .role-card.selected {
+            border-color: var(--primary);
+            background: linear-gradient(135deg, rgba(33, 150, 243, 0.1), rgba(33, 150, 243, 0.05));
+        }
+        
+        .role-icon {
+            font-size: 36px;
+            margin-bottom: 10px;
+        }
+        
+        .role-name {
+            font-size: 14px;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        /* Main App */
+        .app {
+            display: none;
+        }
+        
+        .app.active {
+            display: block;
+        }
+        
+        .topbar {
+            background: white;
+            padding: 15px 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .topbar-left {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+        
+        .app-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+        }
+        
+        .logout-btn {
+            padding: 8px 20px;
+            background: var(--danger);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+        
+        .main-container {
+            display: flex;
+            min-height: calc(100vh - 70px);
+        }
+        
+        .sidebar {
+            width: 250px;
+            background: white;
+            padding: 20px 0;
+        }
+        
+        .sidebar-item {
+            padding: 15px 30px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #666;
+        }
+        
+        .sidebar-item:hover {
+            background: #F5F5F5;
+            color: var(--primary);
+        }
+        
+        .sidebar-item.active {
+            background: linear-gradient(90deg, var(--primary), transparent);
+            color: var(--primary);
+            border-right: 4px solid var(--primary);
+            font-weight: 600;
+        }
+        
+        .content {
+            flex: 1;
+            padding: 30px;
+            overflow-y: auto;
+        }
+        
+        .page {
+            display: none;
+        }
+        
+        .page.active {
+            display: block;
+            animation: fadeIn 0.3s;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-card {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        
+        .stat-icon {
+            font-size: 36px;
+            margin-bottom: 10px;
+        }
+        
+        .stat-value {
+            font-size: 32px;
+            font-weight: bold;
+            color: var(--primary);
+            margin-bottom: 5px;
+        }
+        
+        .stat-label {
+            color: #666;
+            font-size: 14px;
+        }
+        
+        .stat-change {
+            font-size: 12px;
+            margin-top: 5px;
+        }
+        
+        .stat-change.positive {
+            color: var(--success);
+        }
+        
+        .section {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        
+        .section-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #E0E0E0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .employee-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .employee-table th,
+        .employee-table td {
+            padding: 15px;
+            text-align: right;
+            border-bottom: 1px solid #E0E0E0;
+        }
+        
+        .employee-table th {
+            background: #F8F9FA;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .employee-table tr:hover {
+            background: #F8F9FA;
+        }
+        
+        .progress-bar-container {
+            background: #E0E0E0;
+            border-radius: 10px;
+            height: 8px;
+            overflow: hidden;
+            margin: 5px 0;
+        }
+        
+        .progress-bar {
+            height: 100%;
+            border-radius: 10px;
+            transition: width 0.3s;
+        }
+        
+        .progress-bar.success { background: var(--success); }
+        .progress-bar.warning { background: var(--warning); }
+        .progress-bar.danger { background: var(--danger); }
+        
+        .badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        .badge-success { background: #E8F5E9; color: var(--success); }
+        .badge-warning { background: #FFF3E0; color: var(--warning); }
+        .badge-danger { background: #FFEBEE; color: var(--danger); }
+        .badge-info { background: #E3F2FD; color: var(--info); }
+        
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #1976D2;
+            transform: translateY(-2px);
+        }
+        
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+        
+        .btn-secondary {
+            background: #757575;
+            color: white;
+        }
+        
+        .phase-timeline {
+            margin-top: 20px;
+        }
+        
+        .phase-item {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 20px;
+            padding: 20px;
+            background: #F8F9FA;
+            border-radius: 10px;
+            border-right: 4px solid #E0E0E0;
+            transition: all 0.3s;
+        }
+        
+        .phase-item:hover {
+            transform: translateX(-5px);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+        
+        .phase-item.completed {
+            border-right-color: var(--success);
+            background: #E8F5E9;
+        }
+        
+        .phase-item.current {
+            border-right-color: var(--primary);
+            background: #E3F2FD;
+        }
+        
+        .phase-number {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: #E0E0E0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            font-weight: bold;
+            color: #666;
+            flex-shrink: 0;
+        }
+        
+        .phase-item.completed .phase-number {
+            background: var(--success);
+            color: white;
+        }
+        
+        .phase-item.current .phase-number {
+            background: var(--primary);
+            color: white;
+        }
+        
+        .phase-content {
+            flex: 1;
+        }
+        
+        .phase-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 5px;
+        }
+        
+        .phase-description {
+            font-size: 14px;
+            color: #666;
+            line-height: 1.6;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .modal.active {
+            display: flex;
+        }
+        
+        .modal-content {
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            max-width: 600px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #E0E0E0;
+        }
+        
+        .modal-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .close-btn {
+            font-size: 24px;
+            cursor: pointer;
+            color: #666;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: all 0.3s;
+        }
+        
+        .close-btn:hover {
+            background: #F44336;
+            color: white;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #E0E0E0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+        
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+        
+        .form-group textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+        
+        .alert {
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .alert-info {
+            background: #E3F2FD;
+            color: #1976D2;
+            border-right: 4px solid #2196F3;
+        }
+        
+        .alert-warning {
+            background: #FFF3E0;
+            color: #F57C00;
+            border-right: 4px solid #FF9800;
+        }
+        
+        @media (max-width: 768px) {
+            .main-container {
+                flex-direction: column;
+            }
+            
+            .sidebar {
+                width: 100%;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .employee-table {
+                font-size: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Login Screen -->
+    <div class="login-screen" id="loginScreen">
+        <div class="login-box">
+            <div class="login-logo">
+                <h1>🎓 نظام التأهيل التفاعلي</h1>
+                <p style="color: #666;">اختر دورك للدخول إلى النظام</p>
+            </div>
+            
+            <div class="role-selector">
+                <div class="role-card" onclick="selectRole('admin')">
+                    <div class="role-icon">👨‍💼</div>
+                    <div class="role-name">مدير النظام</div>
+                </div>
+                <div class="role-card" onclick="selectRole('hr')">
+                    <div class="role-icon">👥</div>
+                    <div class="role-name">الموارد البشرية</div>
+                </div>
+                <div class="role-card" onclick="selectRole('manager')">
+                    <div class="role-icon">👔</div>
+                    <div class="role-name">المدير المباشر</div>
+                </div>
+                <div class="role-card" onclick="selectRole('mentor')">
+                    <div class="role-icon">👨‍🏫</div>
+                    <div class="role-name">المرشد</div>
+                </div>
+                <div class="role-card" onclick="selectRole('employee')">
+                    <div class="role-icon">👤</div>
+                    <div class="role-name">الموظف الجديد</div>
+                </div>
+            </div>
+            
+            <button class="btn btn-primary" onclick="login()" style="width: 100%; margin-top: 20px;">
+                تسجيل الدخول
+            </button>
+        </div>
+    </div>
+
+    <!-- Main App -->
+    <div class="app" id="app">
+        <!-- Topbar -->
+        <div class="topbar">
+            <div class="topbar-left">
+                <div class="app-title">🎓 نظام التأهيل التفاعلي</div>
+            </div>
+            <div class="user-info">
+                <div class="user-avatar" id="userAvatar">👤</div>
+                <div>
+                    <div style="font-weight: 600;" id="userName">مستخدم</div>
+                    <div style="font-size: 12px; color: #666;" id="userRole">الدور</div>
+                </div>
+                <button class="logout-btn" onclick="logout()">خروج</button>
+            </div>
+        </div>
+
+        <!-- Main Container -->
+        <div class="main-container">
+            <!-- Sidebar -->
+            <div class="sidebar" id="sidebar"></div>
+
+            <!-- Content Area -->
+            <div class="content">
+                <!-- Dashboard Page -->
+                <div class="page active" id="page-dashboard">
+                    <div class="stats-grid" id="statsGrid"></div>
+                    
+                    <div class="section">
+                        <div class="section-title">
+                            <span>📊</span>
+                            <span>نظرة عامة</span>
+                        </div>
+                        <div id="overviewContent"></div>
+                    </div>
+                </div>
+
+                <!-- Employees Page -->
+                <div class="page" id="page-employees">
+                    <div class="section">
+                        <div class="section-title">
+                            <span>👥</span>
+                            <span>الموظفون الجدد</span>
+                        </div>
+                        
+                        <button class="btn btn-primary" onclick="showAddEmployeeModal()" style="margin-bottom: 20px;" id="addEmployeeBtn">
+                            ➕ إضافة موظف جديد
+                        </button>
+                        
+                        <table class="employee-table">
+                            <thead>
+                                <tr>
+                                    <th>الاسم</th>
+                                    <th>القسم</th>
+                                    <th>المرحلة</th>
+                                    <th>التقدم</th>
+                                    <th>الحالة</th>
+                                    <th>إجراءات</th>
+                                </tr>
+                            </thead>
+                            <tbody id="employeesTableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Journey Page -->
+                <div class="page" id="page-journey">
+                    <div class="section">
+                        <div class="section-title">
+                            <span>🗺️</span>
+                            <span>رحلة التأهيل</span>
+                        </div>
+                        <div class="phase-timeline" id="phaseTimeline"></div>
+                    </div>
+                </div>
+
+                <!-- Resources Page -->
+                <div class="page" id="page-resources">
+                    <div class="section">
+                        <div class="section-title">
+                            <span>📚</span>
+                            <span>موارد المعرفة</span>
+                        </div>
+                        
+                        <button class="btn btn-primary" onclick="alert('إضافة مورد جديد')" style="margin-bottom: 20px;" id="addResourceBtn">
+                            ➕ إضافة مورد
+                        </button>
+                        
+                        <div id="resourcesContent"></div>
+                    </div>
+                </div>
+
+                <!-- Reports Page -->
+                <div class="page" id="page-reports">
+                    <div class="section">
+                        <div class="section-title">
+                            <span>📈</span>
+                            <span>التقارير والتحليلات</span>
+                        </div>
+                        <div id="reportsContent"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Employee Modal -->
+    <div class="modal" id="addEmployeeModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">➕ إضافة موظف جديد</div>
+                <div class="close-btn" onclick="closeModal('addEmployeeModal')">×</div>
+            </div>
+            
+            <form onsubmit="addEmployee(event)">
+                <div class="form-group">
+                    <label>الاسم الكامل *</label>
+                    <input type="text" required id="newEmployeeName">
+                </div>
+                
+                <div class="form-group">
+                    <label>المسمى الوظيفي *</label>
+                    <input type="text" required id="newEmployeeTitle">
+                </div>
+                
+                <div class="form-group">
+                    <label>القسم *</label>
+                    <select required id="newEmployeeDept">
+                        <option value="">-- اختر القسم --</option>
+                        <option value="IT">تقنية المعلومات</option>
+                        <option value="Finance">المالية</option>
+                        <option value="Marketing">التسويق</option>
+                        <option value="Operations">العمليات</option>
+                        <option value="HR">الموارد البشرية</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label>تاريخ الالتحاق *</label>
+                    <input type="date" required id="newEmployeeDate">
+                </div>
+                
+                <div class="form-group">
+                    <label>قالب التأهيل *</label>
+                    <select required id="newEmployeeTemplate">
+                        <option value="standard">قياسي (30 يوم)</option>
+                        <option value="intensive">مكثف (60 يوم)</option>
+                        <option value="technical">تقني (45 يوم)</option>
+                        <option value="executive">إداري (45 يوم)</option>
+                    </select>
+                </div>
+                
+                <div style="display: flex; gap: 10px; margin-top: 20px;">
+                    <button type="submit" class="btn btn-primary">حفظ</button>
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('addEmployeeModal')">إلغاء</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Global State
+        let currentRole = null;
+        let currentPage = 'dashboard';
+        
+        const employees = [
+            { id: 1, name: 'أحمد محمد السالم', title: 'مطور برمجيات', dept: 'تقنية المعلومات', phase: 3, progress: 40, status: 'on-track', startDate: '2026-02-01' },
+            { id: 2, name: 'سارة خالد أحمد', title: 'مديرة مشاريع', dept: 'العمليات', phase: 2, progress: 25, status: 'on-track', startDate: '2026-02-05' },
+            { id: 3, name: 'محمد عبدالله الحربي', title: 'محلل بيانات', dept: 'التحليل', phase: 2, progress: 20, status: 'behind', startDate: '2026-02-10' },
+            { id: 4, name: 'فاطمة سالم', title: 'مصممة UI/UX', dept: 'التسويق', phase: 5, progress: 60, status: 'on-track', startDate: '2026-01-20' },
+            { id: 5, name: 'خالد أحمد', title: 'محاسب', dept: 'المالية', phase: 7, progress: 75, status: 'ahead', startDate: '2026-01-15' }
+        ];
+
+        const phases = [
+            { id: 1, title: 'الاهتمامات الجديدة', duration: '1-2 أيام', status: 'completed' },
+            { id: 2, title: 'التحضير المسبق', duration: '3-5 أيام', status: 'completed' },
+            { id: 3, title: 'مقدمة قاعدة المعرفة', duration: '1 يوم', status: 'current' },
+            { id: 4, title: 'جلسة التوجيه', duration: '1 يوم', status: 'upcoming' },
+            { id: 5, title: 'التدريب المناسب', duration: 'مستمر', status: 'upcoming' },
+            { id: 6, title: 'التعرض متعدد الوظائف', duration: '1-2 أسبوع', status: 'upcoming' },
+            { id: 7, title: 'التدريب الخاص', duration: '2-3 أسابيع', status: 'upcoming' },
+            { id: 8, title: 'مهمة المرشد', duration: '3-6 أشهر', status: 'upcoming' },
+            { id: 9, title: 'جلسات التغذية الراجعة', duration: 'مستمر', status: 'upcoming' },
+            { id: 10, title: 'مناقشة المسار الوظيفي', duration: '1-2 جلسة', status: 'upcoming' },
+            { id: 11, title: 'تقييم المعرفة', duration: '1 أسبوع', status: 'upcoming' },
+            { id: 12, title: 'المراجعة والتحسين', duration: 'مستمر', status: 'upcoming' }
+        ];
+
+        const roleConfig = {
+            admin: {
+                name: 'مدير النظام',
+                icon: '👨‍💼',
+                menu: [
+                    { id: 'dashboard', icon: '📊', name: 'لوحة التحكم' },
+                    { id: 'employees', icon: '👥', name: 'الموظفون' },
+                    { id: 'journey', icon: '🗺️', name: 'رحلة التأهيل' },
+                    { id: 'resources', icon: '📚', name: 'الموارد' },
+                    { id: 'reports', icon: '📈', name: 'التقارير' }
+                ]
+            },
+            hr: {
+                name: 'الموارد البشرية',
+                icon: '👥',
+                menu: [
+                    { id: 'dashboard', icon: '📊', name: 'لوحة التحكم' },
+                    { id: 'employees', icon: '👥', name: 'الموظفون' },
+                    { id: 'journey', icon: '🗺️', name: 'رحلة التأهيل' },
+                    { id: 'resources', icon: '📚', name: 'الموارد' },
+                    { id: 'reports', icon: '📈', name: 'التقارير' }
+                ]
+            },
+            manager: {
+                name: 'المدير المباشر',
+                icon: '👔',
+                menu: [
+                    { id: 'dashboard', icon: '📊', name: 'لوحة التحكم' },
+                    { id: 'employees', icon: '👥', name: 'فريقي' },
+                    { id: 'journey', icon: '🗺️', name: 'رحلة التأهيل' },
+                    { id: 'reports', icon: '📈', name: 'التقارير' }
+                ]
+            },
+            mentor: {
+                name: 'المرشد',
+                icon: '👨‍🏫',
+                menu: [
+                    { id: 'dashboard', icon: '📊', name: 'لوحة التحكم' },
+                    { id: 'employees', icon: '👥', name: 'متدربي' },
+                    { id: 'journey', icon: '🗺️', name: 'رحلة التأهيل' }
+                ]
+            },
+            employee: {
+                name: 'الموظف الجديد',
+                icon: '👤',
+                menu: [
+                    { id: 'dashboard', icon: '📊', name: 'لوحتي' },
+                    { id: 'journey', icon: '🗺️', name: 'رحلتي' },
+                    { id: 'resources', icon: '📚', name: 'الموارد' }
+                ]
+            }
+        };
+
+        function selectRole(role) {
+            currentRole = role;
+            document.querySelectorAll('.role-card').forEach(card => card.classList.remove('selected'));
+            event.target.closest('.role-card').classList.add('selected');
+        }
+
+        function login() {
+            if (!currentRole) {
+                alert('الرجاء اختيار دور للدخول');
+                return;
+            }
+
+            document.getElementById('loginScreen').style.display = 'none';
+            document.getElementById('app').classList.add('active');
+
+            const config = roleConfig[currentRole];
+            document.getElementById('userAvatar').textContent = config.icon;
+            document.getElementById('userName').textContent = config.name;
+            document.getElementById('userRole').textContent = 'مستخدم ' + config.name;
+
+            renderSidebar();
+            renderDashboard();
+            
+            // Hide add buttons for non-authorized roles
+            if (currentRole === 'employee' || currentRole === 'mentor') {
+                const addBtn = document.getElementById('addEmployeeBtn');
+                if (addBtn) addBtn.style.display = 'none';
+            }
+        }
+
+        function logout() {
+            document.getElementById('app').classList.remove('active');
+            document.getElementById('loginScreen').style.display = 'flex';
+            currentRole = null;
+            document.querySelectorAll('.role-card').forEach(card => card.classList.remove('selected'));
+        }
+
+        function renderSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const menu = roleConfig[currentRole].menu;
+
+            sidebar.innerHTML = menu.map(item => `
+                <div class="sidebar-item ${item.id === 'dashboard' ? 'active' : ''}" 
+                     onclick="navigateTo('${item.id}')">
+                    <span>${item.icon}</span>
+                    <span>${item.name}</span>
+                </div>
+            `).join('');
+        }
+
+        function navigateTo(pageId) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.getElementById('page-' + pageId).classList.add('active');
+
+            document.querySelectorAll('.sidebar-item').forEach(item => item.classList.remove('active'));
+            event.target.closest('.sidebar-item').classList.add('active');
+
+            currentPage = pageId;
+
+            if (pageId === 'employees') renderEmployees();
+            if (pageId === 'journey') renderJourney();
+            if (pageId === 'resources') renderResources();
+            if (pageId === 'reports') renderReports();
+        }
+
+        function renderDashboard() {
+            const stats = getStatsForRole();
+            const statsGrid = document.getElementById('statsGrid');
+
+            statsGrid.innerHTML = stats.map(stat => `
+                <div class="stat-card">
+                    <div class="stat-icon">${stat.icon}</div>
+                    <div class="stat-value">${stat.value}</div>
+                    <div class="stat-label">${stat.label}</div>
+                    ${stat.change ? `<div class="stat-change ${stat.change > 0 ? 'positive' : ''}">${stat.change > 0 ? '↗' : '↘'} ${Math.abs(stat.change)}${stat.unit || ''}</div>` : ''}
+                </div>
+            `).join('');
+
+            renderOverview();
+        }
+
+        function getStatsForRole() {
+            if (currentRole === 'employee') {
+                return [
+                    { icon: '📊', value: '40%', label: 'التقدم الإجمالي', change: 15, unit: '%' },
+                    { icon: '🎯', value: '3/12', label: 'المراحل المكتملة' },
+                    { icon: '📚', value: '8/15', label: 'الموارد المدروسة' },
+                    { icon: '⭐', value: '4.8', label: 'التقييم الإجمالي' }
+                ];
+            }
+
+            return [
+                { icon: '👥', value: '24', label: 'موظف نشط', change: 4 },
+                { icon: '✅', value: '87%', label: 'معدل الإكمال', change: 5, unit: '%' },
+                { icon: '⏱️', value: '45', label: 'متوسط المدة (يوم)', change: -3 },
+                { icon: '📈', value: '92%', label: 'رضا الموظفين', change: 2, unit: '%' }
+            ];
+        }
+
+        function renderOverview() {
+            const overview = document.getElementById('overviewContent');
+
+            if (currentRole === 'employee') {
+                overview.innerHTML = `
+                    <div class="alert alert-info">
+                        <span>ℹ️</span>
+                        <span>لديك جلسة إرشاد قادمة في 15 فبراير 2026 الساعة 10:00 صباحاً</span>
+                    </div>
+                    <h3 style="margin-bottom: 15px;">المرحلة الحالية: مقدمة قاعدة المعرفة</h3>
+                    <div class="progress-bar-container" style="height: 15px;">
+                        <div class="progress-bar success" style="width: 60%"></div>
+                    </div>
+                    <p style="margin-top: 10px; color: #666;">60% - تقدم جيد! استمر في التعلم</p>
+                `;
+            } else {
+                overview.innerHTML = `
+                    <div class="alert alert-warning">
+                        <span>⚠️</span>
+                        <span>يوجد موظف واحد متأخر عن الجدول - يحتاج متابعة</span>
+                    </div>
+                    <p style="color: #666; margin-top: 15px;">
+                        ${employees.length} موظفاً نشطاً في مراحل مختلفة من التأهيل
+                    </p>
+                `;
+            }
+        }
+
+        function renderEmployees() {
+            const tbody = document.getElementById('employeesTableBody');
+            let displayEmployees = employees;
+
+            if (currentRole === 'manager') {
+                displayEmployees = employees.slice(0, 3); // محاكاة عرض فريقه فقط
+            } else if (currentRole === 'mentor') {
+                displayEmployees = employees.slice(0, 2); // محاكاة عرض متدربيه فقط
+            }
+
+            tbody.innerHTML = displayEmployees.map(emp => {
+                const progressClass = emp.progress >= 60 ? 'success' : emp.progress >= 30 ? 'warning' : 'danger';
+                const statusBadge = emp.status === 'ahead' ? 'success' : emp.status === 'behind' ? 'danger' : 'info';
+                const statusText = emp.status === 'ahead' ? 'متقدم' : emp.status === 'behind' ? 'متأخر' : 'على المسار';
+
+                return `
+                    <tr>
+                        <td><strong>${emp.name}</strong><br><small style="color: #666;">${emp.title}</small></td>
+                        <td>${emp.dept}</td>
+                        <td>المرحلة ${emp.phase}/12</td>
+                        <td>
+                            <div style="min-width: 100px;">
+                                <div>${emp.progress}%</div>
+                                <div class="progress-bar-container">
+                                    <div class="progress-bar ${progressClass}" style="width: ${emp.progress}%"></div>
+                                </div>
+                            </div>
+                        </td>
+                        <td><span class="badge badge-${statusBadge}">${statusText}</span></td>
+                        <td>
+                            <button class="btn btn-primary" onclick="viewEmployee(${emp.id})" style="padding: 6px 12px; font-size: 12px;">
+                                عرض
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function renderJourney() {
+            const timeline = document.getElementById('phaseTimeline');
+
+            timeline.innerHTML = phases.map(phase => {
+                const statusIcon = phase.status === 'completed' ? '✓' : phase.id;
+                return `
+                    <div class="phase-item ${phase.status}">
+                        <div class="phase-number">${statusIcon}</div>
+                        <div class="phase-content">
+                            <div class="phase-title">${phase.title}</div>
+                            <div class="phase-description">المدة: ${phase.duration}</div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function renderResources() {
+            const content = document.getElementById('resourcesContent');
+            content.innerHTML = `
+                <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 20px;">
+                    <div style="border: 2px solid #E0E0E0; border-radius: 10px; padding: 20px;">
+                        <div style="font-size: 36px; margin-bottom: 10px;">📄</div>
+                        <h3>دليل الموظف</h3>
+                        <p style="color: #666; font-size: 14px; margin: 10px 0;">الدليل الشامل للموظفين الجدد</p>
+                        <button class="btn btn-primary" style="width: 100%; margin-top: 10px;">عرض</button>
+                    </div>
+                    <div style="border: 2px solid #E0E0E0; border-radius: 10px; padding: 20px;">
+                        <div style="font-size: 36px; margin-bottom: 10px;">🎥</div>
+                        <h3>فيديو الثقافة</h3>
+                        <p style="color: #666; font-size: 14px; margin: 10px 0;">تعرف على ثقافة الشركة</p>
+                        <button class="btn btn-primary" style="width: 100%; margin-top: 10px;">مشاهدة</button>
+                    </div>
+                    <div style="border: 2px solid #E0E0E0; border-radius: 10px; padding: 20px;">
+                        <div style="font-size: 36px; margin-bottom: 10px;">💻</div>
+                        <h3>دورة الأنظمة</h3>
+                        <p style="color: #666; font-size: 14px; margin: 10px 0;">تعلم الأنظمة الداخلية</p>
+                        <button class="btn btn-primary" style="width: 100%; margin-top: 10px;">بدء</button>
+                    </div>
+                    <div style="border: 2px solid #E0E0E0; border-radius: 10px; padding: 20px;">
+                        <div style="font-size: 36px; margin-bottom: 10px;">✅</div>
+                        <h3>قائمة المراجعة</h3>
+                        <p style="color: #666; font-size: 14px; margin: 10px 0;">خطوات التأهيل الأساسية</p>
+                        <button class="btn btn-primary" style="width: 100%; margin-top: 10px;">عرض</button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderReports() {
+            const content = document.getElementById('reportsContent');
+            content.innerHTML = `
+                <div style="margin-bottom: 20px;">
+                    <button class="btn btn-primary" onclick="generateReport('progress')">📊 تقرير التقدم</button>
+                    <button class="btn btn-primary" onclick="generateReport('completion')">✅ تقرير الإكمال</button>
+                    <button class="btn btn-primary" onclick="generateReport('satisfaction')">⭐ تقرير الرضا</button>
+                </div>
+                <div id="reportOutput" style="background: #F8F9FA; padding: 20px; border-radius: 10px; min-height: 200px;">
+                    <p style="color: #666; text-align: center;">اختر نوع التقرير لعرضه</p>
+                </div>
+            `;
+        }
+
+        function generateReport(type) {
+            const output = document.getElementById('reportOutput');
+            const labels = {
+                progress: 'تقرير التقدم الشامل',
+                completion: 'تقرير معدلات الإكمال',
+                satisfaction: 'تقرير رضا الموظفين'
+            };
+
+            output.innerHTML = `
+                <h3 style="margin-bottom: 20px;">${labels[type]}</h3>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-value">24</div>
+                        <div class="stat-label">موظفون نشطون</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">87%</div>
+                        <div class="stat-label">معدل الإكمال</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">45</div>
+                        <div class="stat-label">متوسط المدة</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">92%</div>
+                        <div class="stat-label">معدل الرضا</div>
+                    </div>
+                </div>
+                <div style="text-align: center; margin-top: 20px;">
+                    <button class="btn btn-success" onclick="alert('تم التصدير!')">📥 تصدير PDF</button>
+                    <button class="btn btn-success" onclick="alert('تم التصدير!')">📊 تصدير Excel</button>
+                </div>
+            `;
+        }
+
+        function showAddEmployeeModal() {
+            document.getElementById('addEmployeeModal').classList.add('active');
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+        }
+
+        function addEmployee(e) {
+            e.preventDefault();
+
+            const newEmployee = {
+                id: employees.length + 1,
+                name: document.getElementById('newEmployeeName').value,
+                title: document.getElementById('newEmployeeTitle').value,
+                dept: document.getElementById('newEmployeeDept').value,
+                phase: 1,
+                progress: 5,
+                status: 'on-track',
+                startDate: document.getElementById('newEmployeeDate').value
+            };
+
+            employees.push(newEmployee);
+            renderEmployees();
+            closeModal('addEmployeeModal');
+
+            alert('✅ تم إضافة الموظف بنجاح!');
+        }
+
+        function viewEmployee(id) {
+            const emp = employees.find(e => e.id === id);
+            alert(`عرض تفاصيل: ${emp.name}\n\nالمرحلة: ${emp.phase}/12\nالتقدم: ${emp.progress}%`);
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('نظام التأهيل التفاعلي جاهز');
+        });
+    </script>
+</body>
+</html>
