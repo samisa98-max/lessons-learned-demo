@@ -1,0 +1,1450 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>نظام إدارة الدروس المستفادة - LLMP</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', 'Tajawal', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            direction: rtl;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .header h1 {
+            color: #2E7D32;
+            font-size: 32px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 16px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+            cursor: pointer;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+
+        .stat-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+        }
+
+        .stat-value {
+            font-size: 36px;
+            font-weight: bold;
+            color: #2E7D32;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .main-actions {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .btn-primary {
+            background: #2E7D32;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #1B5E20;
+            transform: scale(1.05);
+        }
+
+        .btn-secondary {
+            background: #1976D2;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #1565C0;
+        }
+
+        .btn-cancel {
+            background: #757575;
+            color: white;
+        }
+
+        .btn-cancel:hover {
+            background: #616161;
+        }
+
+        .lessons-container {
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .section-title {
+            font-size: 24px;
+            color: #333;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .search-bar {
+            width: 100%;
+            padding: 15px 20px;
+            border: 2px solid #E0E0E0;
+            border-radius: 10px;
+            font-size: 16px;
+            margin-bottom: 20px;
+            transition: border-color 0.3s;
+        }
+
+        .search-bar:focus {
+            outline: none;
+            border-color: #2E7D32;
+        }
+
+        .filters {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 10px 20px;
+            border: 2px solid #E0E0E0;
+            background: white;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 14px;
+        }
+
+        .filter-btn:hover {
+            border-color: #2E7D32;
+            color: #2E7D32;
+        }
+
+        .filter-btn.active {
+            background: #2E7D32;
+            color: white;
+            border-color: #2E7D32;
+        }
+
+        .lesson-card {
+            border: 2px solid #E0E0E0;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 20px;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .lesson-card:hover {
+            border-color: #2E7D32;
+            box-shadow: 0 5px 20px rgba(46, 125, 50, 0.1);
+            transform: translateX(-5px);
+        }
+
+        .lesson-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 15px;
+        }
+
+        .lesson-title {
+            font-size: 20px;
+            color: #333;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .lesson-badge {
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .badge-success {
+            background: #E8F5E9;
+            color: #2E7D32;
+        }
+
+        .badge-warning {
+            background: #FFF3E0;
+            color: #F57C00;
+        }
+
+        .badge-danger {
+            background: #FFEBEE;
+            color: #D32F2F;
+        }
+
+        .badge-info {
+            background: #E3F2FD;
+            color: #1976D2;
+        }
+
+        .lesson-meta {
+            display: flex;
+            gap: 20px;
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .lesson-excerpt {
+            color: #555;
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+
+        .lesson-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 15px;
+            border-top: 1px solid #E0E0E0;
+        }
+
+        .lesson-stats {
+            display: flex;
+            gap: 20px;
+            font-size: 14px;
+            color: #666;
+        }
+
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .view-btn {
+            padding: 8px 20px;
+            background: #2E7D32;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 14px;
+        }
+
+        .view-btn:hover {
+            background: #1B5E20;
+            transform: scale(1.05);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 16px;
+            padding: 40px;
+            max-width: 900px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            font-size: 30px;
+            cursor: pointer;
+            color: #666;
+            transition: color 0.3s;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background: #f5f5f5;
+        }
+
+        .close-btn:hover {
+            color: white;
+            background: #D32F2F;
+        }
+
+        .detail-section {
+            margin-bottom: 30px;
+        }
+
+        .detail-section h3 {
+            color: #2E7D32;
+            margin-bottom: 15px;
+            font-size: 20px;
+        }
+
+        .detail-section p, .detail-section ul {
+            color: #555;
+            line-height: 1.8;
+        }
+
+        .detail-section ul {
+            list-style-position: inside;
+            padding-right: 20px;
+        }
+
+        .detail-section ul li {
+            margin-bottom: 10px;
+        }
+
+        /* Wizard Styles */
+        .wizard-steps {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 40px;
+            position: relative;
+            padding: 0 10px;
+        }
+
+        .wizard-steps::before {
+            content: '';
+            position: absolute;
+            top: 20px;
+            right: 60px;
+            left: 60px;
+            height: 2px;
+            background: #E0E0E0;
+            z-index: 0;
+        }
+
+        .wizard-step {
+            flex: 1;
+            text-align: center;
+            position: relative;
+            z-index: 1;
+        }
+
+        .step-number {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: #E0E0E0;
+            color: #999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 10px;
+            font-weight: bold;
+            transition: all 0.3s;
+            font-size: 18px;
+        }
+
+        .wizard-step.active .step-number {
+            background: #2E7D32;
+            color: white;
+            box-shadow: 0 4px 12px rgba(46, 125, 50, 0.3);
+            transform: scale(1.1);
+        }
+
+        .wizard-step.completed .step-number {
+            background: #4CAF50;
+            color: white;
+        }
+
+        .wizard-step.completed .step-number::after {
+            content: '✓';
+        }
+
+        .step-label {
+            font-size: 14px;
+            color: #666;
+            font-weight: 600;
+        }
+
+        .wizard-step.active .step-label {
+            color: #2E7D32;
+        }
+
+        .form-step {
+            display: none;
+        }
+
+        .form-step.active {
+            display: block;
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 600;
+        }
+
+        .form-group label .required {
+            color: #D32F2F;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #E0E0E0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+            font-family: inherit;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #2E7D32;
+        }
+
+        .form-group textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        .category-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            gap: 15px;
+        }
+
+        .category-option {
+            padding: 20px;
+            border: 2px solid #E0E0E0;
+            border-radius: 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: white;
+        }
+
+        .category-option:hover {
+            border-color: #2E7D32;
+            transform: translateY(-2px);
+        }
+
+        .category-option.selected {
+            border-color: #2E7D32;
+            background: #E8F5E9;
+        }
+
+        .category-icon {
+            font-size: 32px;
+            margin-bottom: 8px;
+        }
+
+        .type-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 12px;
+        }
+
+        .type-option {
+            padding: 15px;
+            border: 2px solid #E0E0E0;
+            border-radius: 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: white;
+        }
+
+        .type-option:hover {
+            border-color: #2E7D32;
+            transform: translateY(-2px);
+        }
+
+        .type-option.selected {
+            border-color: #2E7D32;
+            background: #E8F5E9;
+        }
+
+        .wizard-actions {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 2px solid #E0E0E0;
+        }
+
+        .success-message {
+            background: #E8F5E9;
+            border: 2px solid #4CAF50;
+            border-radius: 12px;
+            padding: 30px;
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .success-icon {
+            font-size: 64px;
+            margin-bottom: 20px;
+        }
+
+        .success-message h3 {
+            color: #2E7D32;
+            margin-bottom: 10px;
+            font-size: 24px;
+        }
+
+        .success-message p {
+            color: #666;
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .main-actions {
+                flex-direction: column;
+            }
+            
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+            
+            .modal-content {
+                padding: 20px;
+            }
+
+            .wizard-steps {
+                flex-wrap: wrap;
+            }
+
+            .wizard-step {
+                flex-basis: 50%;
+                margin-bottom: 20px;
+            }
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #666;
+        }
+
+        .empty-state-icon {
+            font-size: 80px;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+
+        .impact-levels {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            gap: 12px;
+        }
+
+        .impact-level {
+            padding: 12px;
+            border: 2px solid #E0E0E0;
+            border-radius: 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .impact-level:hover {
+            transform: translateY(-2px);
+        }
+
+        .impact-level.selected {
+            border-color: #2E7D32;
+            background: #E8F5E9;
+        }
+
+        .impact-low { border-color: #4CAF50; }
+        .impact-low.selected { background: #E8F5E9; border-color: #4CAF50; }
+        
+        .impact-medium { border-color: #FF9800; }
+        .impact-medium.selected { background: #FFF3E0; border-color: #FF9800; }
+        
+        .impact-high { border-color: #F44336; }
+        .impact-high.selected { background: #FFEBEE; border-color: #F44336; }
+        
+        .impact-critical { border-color: #9C27B0; }
+        .impact-critical.selected { background: #F3E5F5; border-color: #9C27B0; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>
+                <span>📚</span>
+                نظام إدارة الدروس المستفادة
+            </h1>
+            <p>مرحباً بك في نظام إدارة المعرفة - التقط، وثّق، وشارك خبراتك وتعلم من الآخرين</p>
+        </div>
+
+        <!-- Statistics -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon">📝</div>
+                <div class="stat-value" id="totalLessons">3</div>
+                <div class="stat-label">إجمالي الدروس</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">👥</div>
+                <div class="stat-value">3</div>
+                <div class="stat-label">مساهم نشط</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">📈</div>
+                <div class="stat-value">+100%</div>
+                <div class="stat-label">نمو شهري</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">⭐</div>
+                <div class="stat-value" id="avgRating">4.6</div>
+                <div class="stat-label">متوسط التقييم</div>
+            </div>
+        </div>
+
+        <!-- Main Actions -->
+        <div class="main-actions">
+            <button class="btn btn-primary" onclick="showAddLessonForm()">
+                <span>➕</span>
+                إضافة درس مستفاد جديد
+            </button>
+            <button class="btn btn-secondary" onclick="showAnalytics()">
+                <span>📊</span>
+                عرض التحليلات
+            </button>
+        </div>
+
+        <!-- Lessons Container -->
+        <div class="lessons-container">
+            <h2 class="section-title">
+                <span>📖</span>
+                الدروس المستفادة الحديثة
+            </h2>
+
+            <input type="text" class="search-bar" id="searchBar" placeholder="🔍 ابحث عن درس...">
+
+            <div class="filters">
+                <button class="filter-btn active" data-filter="all">الكل</button>
+                <button class="filter-btn" data-filter="success">✅ نجاحات</button>
+                <button class="filter-btn" data-filter="failure">❌ إخفاقات</button>
+                <button class="filter-btn" data-filter="warning">⚠️ تحذيرات</button>
+                <button class="filter-btn" data-filter="opportunity">💡 فرص</button>
+            </div>
+
+            <div id="lessonsContainer"></div>
+        </div>
+    </div>
+
+    <!-- Modal for Lesson Details -->
+    <div id="lessonModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeModal()">×</span>
+            <div id="modalContent"></div>
+        </div>
+    </div>
+
+    <!-- Modal for Add Lesson Form -->
+    <div id="addLessonModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeAddLessonForm()">×</span>
+            <h2 style="margin-bottom: 30px;">➕ إضافة درس مستفاد جديد</h2>
+            
+            <div class="wizard-steps">
+                <div class="wizard-step active" data-step="1">
+                    <div class="step-number">1</div>
+                    <div class="step-label">معلومات أساسية</div>
+                </div>
+                <div class="wizard-step" data-step="2">
+                    <div class="step-number">2</div>
+                    <div class="step-label">السياق</div>
+                </div>
+                <div class="wizard-step" data-step="3">
+                    <div class="step-number">3</div>
+                    <div class="step-label">التحليل</div>
+                </div>
+                <div class="wizard-step" data-step="4">
+                    <div class="step-number">4</div>
+                    <div class="step-label">التوصيات</div>
+                </div>
+            </div>
+
+            <form id="addLessonForm">
+                <!-- Step 1: Basic Info -->
+                <div class="form-step active" data-step="1">
+                    <div class="form-group">
+                        <label>عنوان الدرس المستفاد <span class="required">*</span></label>
+                        <input type="text" id="lessonTitle" required placeholder="مثال: تحسين إدارة المخاطر في مشروع البناء">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>المشروع/المهمة <span class="required">*</span></label>
+                        <input type="text" id="projectName" required placeholder="اسم المشروع أو المهمة">
+                    </div>
+
+                    <div class="form-group">
+                        <label>التصنيف <span class="required">*</span></label>
+                        <div class="category-options">
+                            <div class="category-option" data-category="projects">
+                                <div class="category-icon">📊</div>
+                                <div>مشاريع</div>
+                            </div>
+                            <div class="category-option" data-category="operations">
+                                <div class="category-icon">⚙️</div>
+                                <div>عمليات</div>
+                            </div>
+                            <div class="category-option" data-category="relations">
+                                <div class="category-icon">🤝</div>
+                                <div>علاقات</div>
+                            </div>
+                            <div class="category-option" data-category="technical">
+                                <div class="category-icon">💻</div>
+                                <div>تقنية</div>
+                            </div>
+                            <div class="category-option" data-category="financial">
+                                <div class="category-icon">💰</div>
+                                <div>مالية</div>
+                            </div>
+                        </div>
+                        <input type="hidden" id="lessonCategory" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>نوع الدرس <span class="required">*</span></label>
+                        <div class="type-options">
+                            <div class="type-option" data-type="success">
+                                <div style="font-size: 24px; margin-bottom: 5px;">✅</div>
+                                <div>نجاح</div>
+                            </div>
+                            <div class="type-option" data-type="failure">
+                                <div style="font-size: 24px; margin-bottom: 5px;">❌</div>
+                                <div>فشل</div>
+                            </div>
+                            <div class="type-option" data-type="warning">
+                                <div style="font-size: 24px; margin-bottom: 5px;">⚠️</div>
+                                <div>تحذير</div>
+                            </div>
+                            <div class="type-option" data-type="opportunity">
+                                <div style="font-size: 24px; margin-bottom: 5px;">💡</div>
+                                <div>فرصة</div>
+                            </div>
+                        </div>
+                        <input type="hidden" id="lessonType" required>
+                    </div>
+                </div>
+
+                <!-- Step 2: Context -->
+                <div class="form-step" data-step="2">
+                    <div class="form-group">
+                        <label>ما الذي حدث؟ <span class="required">*</span></label>
+                        <textarea id="situation" required placeholder="صف الموقف أو الحدث الذي حصل..."></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label>ما كان السياق؟</label>
+                        <textarea id="context" placeholder="اشرح الظروف والملابسات المحيطة بالحدث..."></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label>النتيجة المتوقعة</label>
+                        <textarea id="expectedOutcome" placeholder="ما الذي كنتم تتوقعون حدوثه؟"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label>النتيجة الفعلية</label>
+                        <textarea id="actualOutcome" placeholder="ما الذي حدث فعلياً؟"></textarea>
+                    </div>
+                </div>
+
+                <!-- Step 3: Analysis -->
+                <div class="form-step" data-step="3">
+                    <div class="form-group">
+                        <label>ما الذي نجح؟ <span class="required">*</span></label>
+                        <textarea id="whatWorked" required placeholder="اذكر الإجراءات والقرارات التي أدت لنتائج إيجابية..."></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label>ما الذي لم ينجح؟</label>
+                        <textarea id="whatDidntWork" placeholder="اذكر ما لم ينجح أو ما يحتاج إلى تحسين..."></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label>السبب الجذري</label>
+                        <textarea id="rootCause" placeholder="ما هو السبب الحقيقي وراء النتيجة؟"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label>مستوى التأثير <span class="required">*</span></label>
+                        <div class="impact-levels">
+                            <div class="impact-level impact-low" data-impact="low">
+                                <div style="font-size: 20px; margin-bottom: 5px;">🟢</div>
+                                <div>منخفض</div>
+                            </div>
+                            <div class="impact-level impact-medium" data-impact="medium">
+                                <div style="font-size: 20px; margin-bottom: 5px;">🟡</div>
+                                <div>متوسط</div>
+                            </div>
+                            <div class="impact-level impact-high" data-impact="high">
+                                <div style="font-size: 20px; margin-bottom: 5px;">🟠</div>
+                                <div>عالي</div>
+                            </div>
+                            <div class="impact-level impact-critical" data-impact="critical">
+                                <div style="font-size: 20px; margin-bottom: 5px;">🔴</div>
+                                <div>حرج</div>
+                            </div>
+                        </div>
+                        <input type="hidden" id="impactLevel" required>
+                    </div>
+                </div>
+
+                <!-- Step 4: Recommendations -->
+                <div class="form-step" data-step="4">
+                    <div class="form-group">
+                        <label>التوصيات للمستقبل <span class="required">*</span></label>
+                        <textarea id="recommendations" required placeholder="ما هي التوصيات لتطبيقها في المستقبل؟"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label>الإجراءات الوقائية</label>
+                        <textarea id="preventiveMeasures" placeholder="ما الإجراءات التي يجب اتخاذها لتفادي المشاكل؟"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label>ملاحظات إضافية</label>
+                        <textarea id="additionalNotes" placeholder="أي معلومات إضافية تود مشاركتها..."></textarea>
+                    </div>
+
+                    <div class="success-message" style="display: none;" id="successMessage">
+                        <div class="success-icon">✅</div>
+                        <h3>تم حفظ الدرس بنجاح!</h3>
+                        <p>شكراً لمساهمتك في إثراء قاعدة المعرفة</p>
+                    </div>
+                </div>
+
+                <div class="wizard-actions">
+                    <button type="button" class="btn btn-cancel" onclick="closeAddLessonForm()">إلغاء</button>
+                    <div style="display: flex; gap: 10px;">
+                        <button type="button" class="btn btn-secondary" id="prevBtn" onclick="previousStep()" style="display: none;">
+                            ← السابق
+                        </button>
+                        <button type="button" class="btn btn-primary" id="nextBtn" onclick="nextStep()">
+                            التالي ←
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let lessons = [
+            {
+                id: 1,
+                title: "تحسين إدارة المخاطر في مشروع البناء المجتمعي",
+                category: "مشاريع",
+                type: "success",
+                author: "أحمد محمد",
+                date: "منذ ساعتين",
+                excerpt: "واجه مشروع البناء المجتمعي تأخيرات بسبب عدم التخطيط الكافي لإدارة المخاطر المحتملة. تم تطبيق نموذج جديد لتحديد المخاطر في مرحلة مبكرة مما ساعد على تقليل التأخيرات بنسبة 40%.",
+                views: 47,
+                comments: 5,
+                rating: 4.8,
+                details: {
+                    situation: "واجه مشروع البناء المجتمعي تأخيرات متكررة وتجاوز في الميزانية بسبب ظهور مخاطر غير متوقعة.",
+                    whatWorked: "إنشاء سجل مخاطر شامل منذ البداية • عقد اجتماعات أسبوعية لمراجعة المخاطر • تعيين مسؤول متابعة لكل خطر محتمل",
+                    whatDidntWork: "الاعتماد على التخمين بدلاً من البيانات • عدم إشراك جميع أعضاء الفريق في التقييم",
+                    recommendations: "استخدام نموذج SWOT في بداية كل مشروع • تخصيص 5% من الميزانية لإدارة الطوارئ • إشراك جميع الأطراف في ورشة تقييم المخاطر"
+                }
+            },
+            {
+                id: 2,
+                title: "تحديات التواصل مع المستفيدين في مشروع التنمية",
+                category: "علاقات",
+                type: "warning",
+                author: "فاطمة علي",
+                date: "منذ 4 ساعات",
+                excerpt: "واجهنا صعوبات في التواصل الفعال مع المستفيدين بسبب عدم فهم احتياجاتهم الحقيقية. تعلمنا أهمية إجراء دراسة احتياجات شاملة قبل بدء أي مشروع.",
+                views: 32,
+                comments: 3,
+                rating: 4.2,
+                details: {
+                    situation: "واجه فريق المشروع صعوبة في فهم احتياجات المستفيدين الحقيقية مما أدى إلى تطوير خدمات لم تلبي توقعاتهم.",
+                    whatWorked: "إجراء مقابلات فردية مع عينة من المستفيدين • استخدام استبيانات مبسطة وواضحة",
+                    whatDidntWork: "الاعتماد على الافتراضات الأولية دون التحقق • عدم إشراك المستفيدين في مرحلة التخطيط",
+                    recommendations: "إجراء دراسة احتياجات شاملة قبل بدء أي مشروع • إنشاء مجموعة استشارية من المستفيدين • عقد جلسات استماع دورية"
+                }
+            },
+            {
+                id: 3,
+                title: "نجاح تطبيق نظام إلكتروني لإدارة المتطوعين",
+                category: "تقنية",
+                type: "success",
+                author: "محمد سالم",
+                date: "منذ يوم واحد",
+                excerpt: "تم تطبيق نظام إلكتروني جديد لإدارة قاعدة بيانات المتطوعين، مما سهل عملية التواصل والتنسيق وزاد من كفاءة العمل بنسبة 60%.",
+                views: 56,
+                comments: 8,
+                rating: 4.9,
+                details: {
+                    situation: "كانت إدارة المتطوعين تتم بطريقة يدوية مما يسبب صعوبات في التواصل والتنسيق.",
+                    whatWorked: "اختيار نظام سهل الاستخدام ومتوافق مع الهواتف • تدريب الفريق قبل الإطلاق • البدء بمجموعة تجريبية صغيرة",
+                    whatDidntWork: "محاولة نقل جميع البيانات القديمة دفعة واحدة • عدم توفير دعم فني كافٍ في البداية",
+                    recommendations: "اختيار الأنظمة البسيطة والمرنة • تخصيص وقت كافٍ للتدريب • التطبيق التدريجي مع مراقبة الأداء"
+                }
+            }
+        ];
+
+        let currentStep = 1;
+        let newLesson = {};
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            renderLessons();
+            setupEventListeners();
+        });
+
+        // Setup event listeners
+        function setupEventListeners() {
+            // Search
+            document.getElementById('searchBar').addEventListener('input', handleSearch);
+
+            // Filter buttons
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.addEventListener('click', handleFilter);
+            });
+
+            // Category selection
+            document.querySelectorAll('.category-option').forEach(option => {
+                option.addEventListener('click', function() {
+                    document.querySelectorAll('.category-option').forEach(o => o.classList.remove('selected'));
+                    this.classList.add('selected');
+                    document.getElementById('lessonCategory').value = this.dataset.category;
+                });
+            });
+
+            // Type selection
+            document.querySelectorAll('.type-option').forEach(option => {
+                option.addEventListener('click', function() {
+                    document.querySelectorAll('.type-option').forEach(o => o.classList.remove('selected'));
+                    this.classList.add('selected');
+                    document.getElementById('lessonType').value = this.dataset.type;
+                });
+            });
+
+            // Impact selection
+            document.querySelectorAll('.impact-level').forEach(option => {
+                option.addEventListener('click', function() {
+                    document.querySelectorAll('.impact-level').forEach(o => o.classList.remove('selected'));
+                    this.classList.add('selected');
+                    document.getElementById('impactLevel').value = this.dataset.impact;
+                });
+            });
+
+            // Close modals on outside click
+            window.onclick = function(event) {
+                const lessonModal = document.getElementById('lessonModal');
+                const addModal = document.getElementById('addLessonModal');
+                if (event.target === lessonModal) {
+                    closeModal();
+                }
+                if (event.target === addModal) {
+                    closeAddLessonForm();
+                }
+            }
+        }
+
+        // Render lessons
+        function renderLessons(filteredLessons = lessons) {
+            const container = document.getElementById('lessonsContainer');
+            
+            if (filteredLessons.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📭</div>
+                        <h3>لا توجد دروس مستفادة</h3>
+                        <p>ابدأ بإضافة أول درس مستفاد!</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = filteredLessons.map(lesson => `
+                <div class="lesson-card" onclick="showLessonDetail(${lesson.id})">
+                    <div class="lesson-header">
+                        <div style="flex: 1;">
+                            <div class="lesson-title">${lesson.title}</div>
+                            <div class="lesson-meta">
+                                <span class="meta-item">👤 ${lesson.author}</span>
+                                <span class="meta-item">📅 ${lesson.date}</span>
+                                <span class="meta-item">🏷️ ${lesson.category}</span>
+                            </div>
+                        </div>
+                        <span class="lesson-badge badge-${getBadgeClass(lesson.type)}">
+                            ${getTypeLabel(lesson.type)}
+                        </span>
+                    </div>
+                    <p class="lesson-excerpt">${lesson.excerpt}</p>
+                    <div class="lesson-footer">
+                        <div class="lesson-stats">
+                            <span class="stat-item">👁️ ${lesson.views}</span>
+                            <span class="stat-item">💬 ${lesson.comments}</span>
+                            <span class="stat-item">⭐ ${lesson.rating}</span>
+                        </div>
+                        <button class="view-btn" onclick="event.stopPropagation(); showLessonDetail(${lesson.id})">
+                            عرض التفاصيل ←
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+
+            updateStats();
+        }
+
+        // Helper functions
+        function getBadgeClass(type) {
+            const classes = {
+                'success': 'success',
+                'failure': 'danger',
+                'warning': 'warning',
+                'opportunity': 'info'
+            };
+            return classes[type] || 'info';
+        }
+
+        function getTypeLabel(type) {
+            const labels = {
+                'success': '✅ نجاح',
+                'failure': '❌ فشل',
+                'warning': '⚠️ تحذير',
+                'opportunity': '💡 فرصة'
+            };
+            return labels[type] || type;
+        }
+
+        function getCategoryLabel(category) {
+            const labels = {
+                'projects': 'مشاريع',
+                'operations': 'عمليات',
+                'relations': 'علاقات',
+                'technical': 'تقنية',
+                'financial': 'مالية'
+            };
+            return labels[category] || category;
+        }
+
+        // Show lesson detail
+        function showLessonDetail(id) {
+            const lesson = lessons.find(l => l.id === id);
+            if (!lesson) return;
+
+            const modal = document.getElementById('lessonModal');
+            const content = document.getElementById('modalContent');
+
+            content.innerHTML = `
+                <h2 style="margin-bottom: 20px; padding-left: 50px;">${lesson.title}</h2>
+                <div class="lesson-meta" style="margin-bottom: 30px;">
+                    <span class="meta-item">👤 ${lesson.author}</span>
+                    <span class="meta-item">📅 ${lesson.date}</span>
+                    <span class="meta-item">🏷️ ${lesson.category}</span>
+                    <span class="lesson-badge badge-${getBadgeClass(lesson.type)}">
+                        ${getTypeLabel(lesson.type)}
+                    </span>
+                </div>
+
+                <div class="detail-section">
+                    <h3>📋 السياق والخلفية</h3>
+                    <p>${lesson.details.situation}</p>
+                </div>
+
+                <div class="detail-section">
+                    <h3>✅ ما الذي نجح</h3>
+                    <p>${lesson.details.whatWorked.split('•').map(item => item.trim()).filter(Boolean).map(item => `• ${item}`).join('<br>')}</p>
+                </div>
+
+                <div class="detail-section">
+                    <h3>❌ ما الذي لم ينجح</h3>
+                    <p>${lesson.details.whatDidntWork.split('•').map(item => item.trim()).filter(Boolean).map(item => `• ${item}`).join('<br>')}</p>
+                </div>
+
+                <div class="detail-section">
+                    <h3>💡 التوصيات</h3>
+                    <p>${lesson.details.recommendations.split('•').map(item => item.trim()).filter(Boolean).map(item => `• ${item}`).join('<br>')}</p>
+                </div>
+
+                <div style="display: flex; gap: 10px; margin-top: 30px; flex-wrap: wrap;">
+                    <button class="btn btn-primary" onclick="alert('شكراً لتقييمك!')">⭐ قيّم هذا الدرس</button>
+                    <button class="btn btn-secondary" onclick="alert('تمت المشاركة!')">🔗 شارك</button>
+                    <button class="btn btn-secondary" onclick="alert('جاري التحميل...')">🖨️ طباعة</button>
+                </div>
+            `;
+
+            modal.classList.add('active');
+        }
+
+        // Close modal
+        function closeModal() {
+            document.getElementById('lessonModal').classList.remove('active');
+        }
+
+        // Show add lesson form
+        function showAddLessonForm() {
+            document.getElementById('addLessonModal').classList.add('active');
+            resetForm();
+        }
+
+        // Close add lesson form
+        function closeAddLessonForm() {
+            document.getElementById('addLessonModal').classList.remove('active');
+            resetForm();
+        }
+
+        // Reset form
+        function resetForm() {
+            currentStep = 1;
+            newLesson = {};
+            document.getElementById('addLessonForm').reset();
+            document.querySelectorAll('.form-step').forEach(step => step.classList.remove('active'));
+            document.querySelector('.form-step[data-step="1"]').classList.add('active');
+            document.querySelectorAll('.wizard-step').forEach(step => {
+                step.classList.remove('active', 'completed');
+            });
+            document.querySelector('.wizard-step[data-step="1"]').classList.add('active');
+            document.querySelectorAll('.category-option, .type-option, .impact-level').forEach(el => {
+                el.classList.remove('selected');
+            });
+            document.getElementById('prevBtn').style.display = 'none';
+            document.getElementById('nextBtn').textContent = 'التالي ←';
+            document.getElementById('successMessage').style.display = 'none';
+        }
+
+        // Next step
+        function nextStep() {
+            if (!validateStep(currentStep)) {
+                return;
+            }
+
+            saveStepData(currentStep);
+
+            if (currentStep < 4) {
+                // Mark current as completed
+                document.querySelector(`.wizard-step[data-step="${currentStep}"]`).classList.remove('active');
+                document.querySelector(`.wizard-step[data-step="${currentStep}"]`).classList.add('completed');
+                
+                // Hide current step
+                document.querySelector(`.form-step[data-step="${currentStep}"]`).classList.remove('active');
+                
+                // Move to next
+                currentStep++;
+                
+                // Show next step
+                document.querySelector(`.form-step[data-step="${currentStep}"]`).classList.add('active');
+                document.querySelector(`.wizard-step[data-step="${currentStep}"]`).classList.add('active');
+                
+                // Update buttons
+                document.getElementById('prevBtn').style.display = 'block';
+                
+                if (currentStep === 4) {
+                    document.getElementById('nextBtn').textContent = 'حفظ الدرس ✓';
+                }
+            } else {
+                // Save lesson
+                saveLesson();
+            }
+        }
+
+        // Previous step
+        function previousStep() {
+            if (currentStep > 1) {
+                // Remove active from current
+                document.querySelector(`.wizard-step[data-step="${currentStep}"]`).classList.remove('active');
+                document.querySelector(`.form-step[data-step="${currentStep}"]`).classList.remove('active');
+                
+                // Move to previous
+                currentStep--;
+                
+                // Activate previous
+                document.querySelector(`.wizard-step[data-step="${currentStep}"]`).classList.remove('completed');
+                document.querySelector(`.wizard-step[data-step="${currentStep}"]`).classList.add('active');
+                document.querySelector(`.form-step[data-step="${currentStep}"]`).classList.add('active');
+                
+                // Update buttons
+                if (currentStep === 1) {
+                    document.getElementById('prevBtn').style.display = 'none';
+                }
+                document.getElementById('nextBtn').textContent = 'التالي ←';
+            }
+        }
+
+        // Validate step
+        function validateStep(step) {
+            let isValid = true;
+            let message = '';
+
+            switch(step) {
+                case 1:
+                    if (!document.getElementById('lessonTitle').value) {
+                        message = 'الرجاء إدخال عنوان الدرس';
+                        isValid = false;
+                    } else if (!document.getElementById('projectName').value) {
+                        message = 'الرجاء إدخال اسم المشروع';
+                        isValid = false;
+                    } else if (!document.getElementById('lessonCategory').value) {
+                        message = 'الرجاء اختيار التصنيف';
+                        isValid = false;
+                    } else if (!document.getElementById('lessonType').value) {
+                        message = 'الرجاء اختيار نوع الدرس';
+                        isValid = false;
+                    }
+                    break;
+                case 2:
+                    if (!document.getElementById('situation').value) {
+                        message = 'الرجاء وصف الموقف';
+                        isValid = false;
+                    }
+                    break;
+                case 3:
+                    if (!document.getElementById('whatWorked').value) {
+                        message = 'الرجاء ذكر ما نجح';
+                        isValid = false;
+                    } else if (!document.getElementById('impactLevel').value) {
+                        message = 'الرجاء اختيار مستوى التأثير';
+                        isValid = false;
+                    }
+                    break;
+                case 4:
+                    if (!document.getElementById('recommendations').value) {
+                        message = 'الرجاء إدخال التوصيات';
+                        isValid = false;
+                    }
+                    break;
+            }
+
+            if (!isValid) {
+                alert(message);
+            }
+
+            return isValid;
+        }
+
+        // Save step data
+        function saveStepData(step) {
+            switch(step) {
+                case 1:
+                    newLesson.title = document.getElementById('lessonTitle').value;
+                    newLesson.project = document.getElementById('projectName').value;
+                    newLesson.category = document.getElementById('lessonCategory').value;
+                    newLesson.type = document.getElementById('lessonType').value;
+                    break;
+                case 2:
+                    newLesson.situation = document.getElementById('situation').value;
+                    newLesson.context = document.getElementById('context').value;
+                    newLesson.expectedOutcome = document.getElementById('expectedOutcome').value;
+                    newLesson.actualOutcome = document.getElementById('actualOutcome').value;
+                    break;
+                case 3:
+                    newLesson.whatWorked = document.getElementById('whatWorked').value;
+                    newLesson.whatDidntWork = document.getElementById('whatDidntWork').value;
+                    newLesson.rootCause = document.getElementById('rootCause').value;
+                    newLesson.impact = document.getElementById('impactLevel').value;
+                    break;
+                case 4:
+                    newLesson.recommendations = document.getElementById('recommendations').value;
+                    newLesson.preventiveMeasures = document.getElementById('preventiveMeasures').value;
+                    newLesson.additionalNotes = document.getElementById('additionalNotes').value;
+                    break;
+            }
+        }
+
+        // Save lesson
+        function saveLesson() {
+            const lesson = {
+                id: lessons.length + 1,
+                title: newLesson.title,
+                category: getCategoryLabel(newLesson.category),
+                type: newLesson.type,
+                author: "أنت",
+                date: "الآن",
+                excerpt: newLesson.situation.substring(0, 150) + "...",
+                views: 0,
+                comments: 0,
+                rating: 0,
+                details: {
+                    situation: newLesson.situation,
+                    whatWorked: newLesson.whatWorked,
+                    whatDidntWork: newLesson.whatDidntWork || "لا يوجد",
+                    recommendations: newLesson.recommendations
+                }
+            };
+
+            lessons.unshift(lesson);
+            
+            // Show success message
+            document.getElementById('successMessage').style.display = 'block';
+            document.getElementById('nextBtn').style.display = 'none';
+            document.getElementById('prevBtn').style.display = 'none';
+
+            // Refresh list
+            renderLessons();
+
+            // Close after 2 seconds
+            setTimeout(() => {
+                closeAddLessonForm();
+            }, 2000);
+        }
+
+        // Handle search
+        function handleSearch(e) {
+            const searchTerm = e.target.value.toLowerCase();
+            const filtered = lessons.filter(lesson => 
+                lesson.title.toLowerCase().includes(searchTerm) ||
+                lesson.excerpt.toLowerCase().includes(searchTerm) ||
+                lesson.author.toLowerCase().includes(searchTerm) ||
+                lesson.category.toLowerCase().includes(searchTerm)
+            );
+            renderLessons(filtered);
+        }
+
+        // Handle filter
+        function handleFilter(e) {
+            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+            e.target.classList.add('active');
+            
+            const filter = e.target.dataset.filter;
+            
+            if (filter === 'all') {
+                renderLessons(lessons);
+            } else {
+                const filtered = lessons.filter(l => l.type === filter);
+                renderLessons(filtered);
+            }
+        }
+
+        // Update statistics
+        function updateStats() {
+            document.getElementById('totalLessons').textContent = lessons.length;
+            
+            if (lessons.length > 0) {
+                const avgRating = (lessons.reduce((sum, l) => sum + l.rating, 0) / lessons.length).toFixed(1);
+                document.getElementById('avgRating').textContent = avgRating;
+            }
+        }
+
+        // Show analytics
+        function showAnalytics() {
+            alert('📊 لوحة التحليلات\n\n' +
+                  `عدد الدروس: ${lessons.length}\n` +
+                  `متوسط التقييم: ${document.getElementById('avgRating').textContent}\n` +
+                  `إجمالي المشاهدات: ${lessons.reduce((sum, l) => sum + l.views, 0)}\n` +
+                  `إجمالي التعليقات: ${lessons.reduce((sum, l) => sum + l.comments, 0)}`
+            );
+        }
+    </script>
+</body>
+</html>
