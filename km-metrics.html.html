@@ -1,0 +1,1155 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>نظام تقييم الأداء للفعالية - مقاييس إدارة المعرفة</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;600;700;800&display=swap');
+
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+
+:root {
+  --bg: #0f1623;
+  --surface: #162033;
+  --surface2: #1e2d45;
+  --surface3: #253a56;
+  --text: #e2e8f0;
+  --text-dim: #8899aa;
+  --accent: #38bdf8;
+  --accent2: #a78bfa;
+  --accent3: #34d399;
+  --accent4: #fb923c;
+  --accent5: #f472b6;
+  --gold: #fbbf24;
+  --danger: #f87171;
+  --border: rgba(56,189,248,0.15);
+  --glow: rgba(56,189,248,0.2);
+}
+
+body {
+  font-family: 'Tajawal', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  direction: rtl;
+  overflow-x: hidden;
+}
+
+/* ===== LOGIN ===== */
+.login-screen {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg);
+  position: relative;
+  overflow: hidden;
+  padding: 20px;
+}
+
+.login-screen::before {
+  content:'';
+  position:absolute;
+  top:-30%; right:-20%;
+  width:700px; height:700px;
+  background: radial-gradient(circle, rgba(56,189,248,0.08) 0%, transparent 70%);
+  border-radius:50%;
+  pointer-events:none;
+}
+.login-screen::after {
+  content:'';
+  position:absolute;
+  bottom:-20%; left:-15%;
+  width:500px; height:500px;
+  background: radial-gradient(circle, rgba(167,139,250,0.07) 0%, transparent 70%);
+  border-radius:50%;
+  pointer-events:none;
+}
+
+.login-box {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  padding: 50px 40px 40px;
+  width: 100%;
+  max-width: 560px;
+  position: relative;
+  z-index: 1;
+  box-shadow: 0 25px 60px rgba(0,0,0,0.4);
+}
+
+.login-header {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.login-icon {
+  width: 72px; height: 72px;
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  border-radius: 18px;
+  display: flex; align-items:center; justify-content:center;
+  margin: 0 auto 20px;
+  font-size: 34px;
+  box-shadow: 0 8px 25px rgba(56,189,248,0.3);
+}
+
+.login-header h1 {
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 6px;
+}
+
+.login-header p {
+  color: var(--text-dim);
+  font-size: 14px;
+}
+
+.role-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-bottom: 28px;
+}
+
+.role-card {
+  background: var(--surface2);
+  border: 1.5px solid var(--surface3);
+  border-radius: 14px;
+  padding: 22px 10px 18px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4,0,0.2,1);
+  position: relative;
+  overflow: hidden;
+}
+
+.role-card::before {
+  content:'';
+  position:absolute; top:0; left:0;
+  width:100%; height:3px;
+  background: linear-gradient(90deg, var(--accent), var(--accent2));
+  transform: scaleX(0);
+  transition: transform 0.3s;
+}
+
+.role-card:hover { border-color: var(--border); transform: translateY(-3px); }
+.role-card:hover::before { transform: scaleX(1); }
+.role-card.selected {
+  border-color: var(--accent);
+  background: rgba(56,189,248,0.08);
+  box-shadow: 0 0 20px rgba(56,189,248,0.12);
+}
+.role-card.selected::before { transform: scaleX(1); }
+
+.role-emoji { font-size: 30px; margin-bottom: 8px; display:block; }
+.role-name { font-size: 12px; font-weight: 600; color: var(--text); line-height:1.3; }
+
+.login-btn {
+  width: 100%;
+  padding: 15px;
+  background: linear-gradient(135deg, var(--accent), #7dd3fc);
+  border: none;
+  border-radius: 12px;
+  color: var(--bg);
+  font-family: inherit;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s;
+  box-shadow: 0 6px 20px rgba(56,189,248,0.35);
+}
+.login-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(56,189,248,0.45); }
+
+/* ===== APP ===== */
+.app { display:none; min-height:100vh; }
+.app.active { display:flex; flex-direction:column; }
+
+/* Topbar */
+.topbar {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 14px 28px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.topbar-left {
+  display:flex; align-items:center; gap:14px;
+}
+
+.topbar-logo {
+  width:38px; height:38px;
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  border-radius:10px;
+  display:flex; align-items:center; justify-content:center;
+  font-size:18px;
+}
+
+.topbar-title { font-size:17px; font-weight:700; color:var(--text); }
+.topbar-sub { font-size:11px; color:var(--text-dim); }
+
+.topbar-right {
+  display:flex; align-items:center; gap:16px;
+}
+
+.user-badge {
+  display:flex; align-items:center; gap:10px;
+  background: var(--surface2);
+  padding: 7px 14px 7px 10px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+}
+
+.user-avatar {
+  width:32px; height:32px;
+  background: linear-gradient(135deg, var(--accent2), var(--accent5));
+  border-radius:8px;
+  display:flex; align-items:center; justify-content:center;
+  font-size:16px;
+}
+
+.user-name { font-size:13px; font-weight:600; color:var(--text); }
+.user-role-label { font-size:10px; color:var(--text-dim); }
+
+.btn-logout {
+  background: rgba(248,113,113,0.1);
+  border: 1px solid rgba(248,113,113,0.3);
+  color: var(--danger);
+  padding: 7px 16px;
+  border-radius: 8px;
+  font-family:inherit;
+  font-size:13px; font-weight:600;
+  cursor:pointer;
+  transition:all 0.2s;
+}
+.btn-logout:hover { background:rgba(248,113,113,0.2); }
+
+/* ===== LAYOUT ===== */
+.main-wrap {
+  display:flex;
+  flex:1;
+  min-height: calc(100vh - 66px);
+}
+
+/* Sidebar */
+.sidebar {
+  width: 230px;
+  background: var(--surface);
+  border-left: 1px solid var(--border);
+  padding: 16px 0;
+  flex-shrink:0;
+}
+
+.sidebar-section-label {
+  font-size:10px;
+  font-weight:700;
+  color:var(--text-dim);
+  text-transform:uppercase;
+  letter-spacing:1.2px;
+  padding: 12px 22px 6px;
+}
+
+.nav-item {
+  display:flex; align-items:center; gap:10px;
+  padding: 10px 22px;
+  color: var(--text-dim);
+  cursor:pointer;
+  transition: all 0.2s;
+  font-size:14px;
+  font-weight:500;
+  position:relative;
+  margin: 2px 10px;
+  border-radius: 8px;
+}
+
+.nav-item:hover { background:var(--surface2); color:var(--text); }
+.nav-item.active {
+  background: rgba(56,189,248,0.1);
+  color: var(--accent);
+  font-weight:600;
+}
+.nav-item.active::before {
+  content:'';
+  position:absolute;
+  right:-10px; top:50%;
+  transform:translateY(-50%);
+  width:3px; height:60%;
+  background:var(--accent);
+  border-radius:2px 0 0 2px;
+}
+
+.nav-icon { font-size:17px; width:22px; text-align:center; }
+
+/* ===== CONTENT ===== */
+.content {
+  flex:1;
+  padding: 28px 30px;
+  overflow-y:auto;
+  background: var(--bg);
+}
+
+.page { display:none; animation: pgIn 0.35s ease; }
+.page.active { display:block; }
+
+@keyframes pgIn {
+  from { opacity:0; transform:translateY(8px); }
+  to { opacity:1; transform:translateY(0); }
+}
+
+/* Page Header */
+.page-header {
+  display:flex; justify-content:space-between; align-items:flex-start;
+  margin-bottom:28px;
+}
+
+.page-title { font-size:22px; font-weight:700; color:var(--text); }
+.page-subtitle { font-size:13px; color:var(--text-dim); margin-top:4px; }
+
+.btn-add {
+  background: linear-gradient(135deg, var(--accent), #7dd3fc);
+  border:none; color:var(--bg);
+  padding:10px 20px; border-radius:9px;
+  font-family:inherit; font-size:13px; font-weight:700;
+  cursor:pointer; transition:all 0.25s;
+  display:flex; align-items:center; gap:6px;
+  box-shadow: 0 4px 14px rgba(56,189,248,0.3);
+  white-space:nowrap;
+}
+.btn-add:hover { transform:translateY(-1px); box-shadow: 0 6px 20px rgba(56,189,248,0.4); }
+
+/* ===== KPI CARDS ===== */
+.kpi-grid {
+  display:grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px,1fr));
+  gap:16px;
+  margin-bottom:28px;
+}
+
+.kpi-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 22px 20px 18px;
+  position:relative;
+  overflow:hidden;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.kpi-card:hover { transform:translateY(-2px); box-shadow:0 8px 24px rgba(0,0,0,0.25); }
+
+.kpi-card::after {
+  content:'';
+  position:absolute; bottom:0; left:0;
+  width:100%; height:3px;
+}
+
+.kpi-card[data-color="accent"]::after { background:var(--accent); }
+.kpi-card[data-color="accent2"]::after { background:var(--accent2); }
+.kpi-card[data-color="accent3"]::after { background:var(--accent3); }
+.kpi-card[data-color="accent4"]::after { background:var(--accent4); }
+.kpi-card[data-color="accent5"]::after { background:var(--accent5); }
+.kpi-card[data-color="gold"]::after { background:var(--gold); }
+
+.kpi-top { display:flex; justify-content:space-between; align-items:flex-start; }
+.kpi-icon { font-size:24px; }
+.kpi-trend {
+  font-size:11px; font-weight:700; padding:3px 8px; border-radius:6px;
+}
+.kpi-trend.up { background:rgba(52,211,153,0.12); color:var(--accent3); }
+.kpi-trend.down { background:rgba(248,113,113,0.12); color:var(--danger); }
+.kpi-trend.neutral { background:rgba(136,153,170,0.12); color:var(--text-dim); }
+
+.kpi-value { font-size:30px; font-weight:800; color:var(--text); margin:10px 0 4px; }
+.kpi-label { font-size:12px; color:var(--text-dim); font-weight:500; }
+
+/* ===== SECTION CARD ===== */
+.section-card {
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:16px;
+  padding:24px;
+  margin-bottom:20px;
+}
+
+.section-header {
+  display:flex; justify-content:space-between; align-items:center;
+  margin-bottom:20px;
+  padding-bottom:14px;
+  border-bottom:1px solid var(--surface3);
+}
+
+.section-title { font-size:16px; font-weight:700; color:var(--text); }
+
+.btn-export {
+  background:var(--surface2); border:1px solid var(--surface3);
+  color:var(--text-dim); padding:7px 14px; border-radius:8px;
+  font-family:inherit; font-size:12px; font-weight:600;
+  cursor:pointer; transition:all 0.2s;
+}
+.btn-export:hover { color:var(--text); border-color:var(--accent); }
+
+/* ===== TABLE ===== */
+.table-wrap { overflow-x:auto; }
+
+table {
+  width:100%;
+  border-collapse:collapse;
+}
+
+th {
+  text-align:right;
+  padding:12px 16px;
+  font-size:11px;
+  font-weight:700;
+  color:var(--text-dim);
+  text-transform:uppercase;
+  letter-spacing:0.8px;
+  border-bottom:1px solid var(--surface3);
+  background:var(--surface2);
+  white-space:nowrap;
+}
+th:first-child { border-radius:0 8px 0 0; }
+th:last-child { border-radius:8px 0 0 0; }
+
+td {
+  padding:14px 16px;
+  font-size:13px;
+  border-bottom:1px solid rgba(37,58,86,0.5);
+  color:var(--text);
+  white-space:nowrap;
+}
+
+tr:hover td { background:rgba(56,189,248,0.04); }
+
+.badge {
+  display:inline-block;
+  padding:4px 10px; border-radius:6px;
+  font-size:11px; font-weight:600;
+}
+.badge-green { background:rgba(52,211,153,0.12); color:var(--accent3); }
+.badge-blue { background:rgba(56,189,248,0.12); color:var(--accent); }
+.badge-yellow { background:rgba(251,191,36,0.12); color:var(--gold); }
+.badge-red { background:rgba(248,113,113,0.12); color:var(--danger); }
+.badge-purple { background:rgba(167,139,250,0.12); color:var(--accent2); }
+
+/* ===== PROGRESS BAR ===== */
+.progress-bar {
+  width:100%; height:6px;
+  background:var(--surface2);
+  border-radius:3px;
+  overflow:hidden;
+}
+.progress-fill {
+  height:100%; border-radius:3px;
+  background:linear-gradient(90deg,var(--accent),var(--accent2));
+  transition:width 0.6s ease;
+}
+
+/* ===== STEPS ===== */
+.steps-grid {
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(200px,1fr));
+  gap:12px;
+}
+
+.step-card {
+  background:var(--surface2);
+  border:1px solid var(--surface3);
+  border-radius:12px;
+  padding:18px 16px;
+  display:flex; gap:12px; align-items:flex-start;
+  transition:all 0.2s;
+}
+.step-card:hover { border-color:var(--border); transform:translateY(-1px); }
+.step-card.done { border-color:rgba(52,211,153,0.3); background:rgba(52,211,153,0.06); }
+.step-card.active-step { border-color:rgba(56,189,248,0.4); background:rgba(56,189,248,0.06); }
+
+.step-num {
+  width:28px; height:28px; border-radius:8px;
+  display:flex; align-items:center; justify-content:center;
+  font-size:13px; font-weight:700; flex-shrink:0;
+  background:var(--surface3); color:var(--text-dim);
+}
+.step-card.done .step-num { background:rgba(52,211,153,0.2); color:var(--accent3); }
+.step-card.active-step .step-num { background:rgba(56,189,248,0.2); color:var(--accent); }
+
+.step-text { font-size:13px; color:var(--text); font-weight:500; line-height:1.4; }
+.step-card.done .step-text { color:var(--accent3); }
+
+/* ===== MODAL ===== */
+.modal-overlay {
+  display:none; position:fixed; inset:0;
+  background:rgba(0,0,0,0.6); z-index:500;
+  align-items:center; justify-content:center;
+  padding:20px;
+  backdrop-filter:blur(4px);
+}
+.modal-overlay.active { display:flex; }
+
+.modal {
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:20px;
+  padding:32px;
+  width:100%; max-width:540px;
+  max-height:90vh; overflow-y:auto;
+  box-shadow:0 30px 60px rgba(0,0,0,0.5);
+  animation: modalIn 0.25s ease;
+}
+
+@keyframes modalIn {
+  from { transform:scale(0.93); opacity:0; }
+  to { transform:scale(1); opacity:1; }
+}
+
+.modal-top {
+  display:flex; justify-content:space-between; align-items:center;
+  margin-bottom:24px; padding-bottom:16px;
+  border-bottom:1px solid var(--surface3);
+}
+
+.modal-title { font-size:18px; font-weight:700; color:var(--text); }
+
+.modal-close {
+  background:var(--surface2); border:1px solid var(--surface3);
+  width:32px; height:32px; border-radius:8px;
+  display:flex; align-items:center; justify-content:center;
+  cursor:pointer; color:var(--text-dim); font-size:18px;
+  transition:all 0.2s;
+}
+.modal-close:hover { border-color:var(--danger); color:var(--danger); }
+
+/* Form */
+.form-row { margin-bottom:18px; }
+.form-label {
+  display:block; font-size:12px; font-weight:600;
+  color:var(--text-dim); margin-bottom:7px;
+  text-transform:uppercase; letter-spacing:0.6px;
+}
+
+.form-input, .form-select, .form-textarea {
+  width:100%; padding:12px 14px;
+  background:var(--surface2);
+  border:1.5px solid var(--surface3);
+  border-radius:10px;
+  color:var(--text); font-family:inherit; font-size:14px;
+  transition:border-color 0.2s;
+  outline:none;
+}
+.form-input:focus, .form-select:focus, .form-textarea:focus {
+  border-color:var(--accent);
+  box-shadow:0 0 0 3px rgba(56,189,248,0.15);
+}
+.form-select { appearance:none; -webkit-appearance:none; }
+.form-textarea { min-height:90px; resize:vertical; }
+
+.form-select option { background:var(--surface2); color:var(--text); }
+
+.modal-actions {
+  display:flex; gap:10px; margin-top:24px; padding-top:18px;
+  border-top:1px solid var(--surface3);
+}
+
+.btn-save {
+  flex:1; padding:12px;
+  background:linear-gradient(135deg,var(--accent),#7dd3fc);
+  border:none; border-radius:10px;
+  color:var(--bg); font-family:inherit;
+  font-size:14px; font-weight:700;
+  cursor:pointer; transition:all 0.2s;
+}
+.btn-save:hover { box-shadow:0 4px 16px rgba(56,189,248,0.35); }
+
+.btn-cancel {
+  padding:12px 20px;
+  background:var(--surface2); border:1px solid var(--surface3);
+  border-radius:10px; color:var(--text-dim);
+  font-family:inherit; font-size:14px; font-weight:600;
+  cursor:pointer; transition:all 0.2s;
+}
+.btn-cancel:hover { border-color:var(--text-dim); color:var(--text); }
+
+/* ===== SCENARIOS GRID ===== */
+.scenario-grid {
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(230px,1fr));
+  gap:14px;
+}
+
+.scenario-card {
+  background:var(--surface2);
+  border:1px solid var(--surface3);
+  border-radius:14px;
+  padding:20px;
+  transition:all 0.25s;
+  cursor:pointer;
+}
+.scenario-card:hover {
+  border-color:var(--border);
+  transform:translateY(-3px);
+  box-shadow:0 8px 24px rgba(0,0,0,0.2);
+}
+
+.scenario-num {
+  font-size:11px; font-weight:700; color:var(--accent);
+  background:rgba(56,189,248,0.1); padding:3px 8px; border-radius:6px;
+  display:inline-block; margin-bottom:10px;
+}
+
+.scenario-title { font-size:14px; font-weight:700; color:var(--text); margin-bottom:6px; }
+.scenario-desc { font-size:12px; color:var(--text-dim); line-height:1.5; }
+
+/* ===== CHART BARS ===== */
+.chart-row {
+  display:flex; align-items:center; gap:14px;
+  padding:12px 0; border-bottom:1px solid rgba(37,58,86,0.4);
+}
+.chart-row:last-child { border-bottom:none; }
+.chart-label { width:120px; font-size:13px; color:var(--text); text-align:right; flex-shrink:0; }
+.chart-bar-wrap { flex:1; background:var(--surface2); border-radius:5px; height:22px; overflow:hidden; }
+.chart-bar {
+  height:100%; border-radius:5px;
+  display:flex; align-items:center; justify-content:flex-start; padding-left:8px;
+  font-size:11px; font-weight:700; color:var(--bg);
+  transition:width 0.8s cubic-bezier(0.4,0,0.2,1);
+}
+
+/* ===== TOAST ===== */
+.toast {
+  position:fixed; bottom:30px; left:50%;
+  transform:translateX(-50%) translateY(100px);
+  background:var(--surface);
+  border:1px solid var(--accent3);
+  border-radius:12px;
+  padding:14px 24px;
+  color:var(--accent3);
+  font-weight:600; font-size:14px;
+  z-index:600;
+  transition:transform 0.4s cubic-bezier(0.4,0,0.2,1);
+  box-shadow:0 10px 30px rgba(0,0,0,0.3);
+  display:flex; align-items:center; gap:10px;
+}
+.toast.show { transform:translateX(-50%) translateY(0); }
+.toast-icon { font-size:20px; }
+
+/* ===== OVERVIEW ALERTS ===== */
+.alert-strip {
+  display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:14px;
+}
+
+.alert-item {
+  background:var(--surface2);
+  border-left:4px solid var(--accent3);
+  border-radius:10px;
+  padding:16px 18px;
+}
+.alert-item.warn { border-left-color:var(--accent4); }
+.alert-item.info { border-left-color:var(--accent); }
+
+.alert-title { font-size:13px; font-weight:700; color:var(--text); margin-bottom:4px; }
+.alert-desc { font-size:12px; color:var(--text-dim); }
+
+/* ===== RESPONSIVE ===== */
+@media(max-width:768px){
+  .main-wrap { flex-direction:column; }
+  .sidebar { width:100%; flex-direction:row; overflow-x:auto; padding:10px; }
+  .nav-item { white-space:nowrap; }
+  .role-grid { grid-template-columns:repeat(3,1fr); }
+  .content { padding:18px; }
+}
+</style>
+</head>
+<body>
+
+<!-- ===== LOGIN ===== -->
+<div class="login-screen" id="loginScreen">
+  <div class="login-box">
+    <div class="login-header">
+      <div class="login-icon">📊</div>
+      <h1>تقييم الأداء للفعالية</h1>
+      <p>مقاييس إدارة المعرفة - KM Metrics</p>
+    </div>
+    <div class="role-grid" id="roleGrid"></div>
+    <button class="login-btn" onclick="login()">تسجيل الدخول</button>
+  </div>
+</div>
+
+<!-- ===== APP ===== -->
+<div class="app" id="app">
+  <div class="topbar">
+    <div class="topbar-left">
+      <div class="topbar-logo">📊</div>
+      <div>
+        <div class="topbar-title">نظام مقاييس إدارة المعرفة</div>
+        <div class="topbar-sub">KM Performance Metrics</div>
+      </div>
+    </div>
+    <div class="topbar-right">
+      <div class="user-badge">
+        <div>
+          <div class="user-name" id="topUserName">مستخدم</div>
+          <div class="user-role-label" id="topUserRole">الدور</div>
+        </div>
+        <div class="user-avatar" id="topUserIcon">👤</div>
+      </div>
+      <button class="btn-logout" onclick="logout()">خروج</button>
+    </div>
+  </div>
+
+  <div class="main-wrap">
+    <div class="sidebar" id="sidebar"></div>
+    <div class="content" id="content">
+      <!-- Pages injected by JS -->
+    </div>
+  </div>
+</div>
+
+<!-- ===== MODAL: Add Metric ===== -->
+<div class="modal-overlay" id="modalAdd">
+  <div class="modal">
+    <div class="modal-top">
+      <div class="modal-title">➕ إضافة مقياس جديد</div>
+      <div class="modal-close" onclick="closeModal('modalAdd')">×</div>
+    </div>
+    <div class="form-row">
+      <label class="form-label">اسم المقياس</label>
+      <input class="form-input" id="f_name" type="text" placeholder="مثال: معدل استخدام المعرفة">
+    </div>
+    <div class="form-row">
+      <label class="form-label">الفئة</label>
+      <select class="form-select" id="f_category">
+        <option value="acquisition">اكتساب المعرفة</option>
+        <option value="sharing">مشاركة المعرفة</option>
+        <option value="utilization">استخدام المعرفة</option>
+        <option value="retention">الاحتفاظ بالمعرفة</option>
+        <option value="innovation">الابتكار</option>
+      </select>
+    </div>
+    <div class="form-row">
+      <label class="form-label">وحدة القياس</label>
+      <select class="form-select" id="f_unit">
+        <option value="%">نسبة مئوية (%)</option>
+        <option value="count">عدد</option>
+        <option value="days">أيام</option>
+        <option value="score">درجة</option>
+        <option value="ratio">نسبة</option>
+      </select>
+    </div>
+    <div class="form-row">
+      <label class="form-label">القيمة الحالية</label>
+      <input class="form-input" id="f_current" type="number" placeholder="0">
+    </div>
+    <div class="form-row">
+      <label class="form-label">الهدف المستهدف</label>
+      <input class="form-input" id="f_target" type="number" placeholder="100">
+    </div>
+    <div class="form-row">
+      <label class="form-label">الأولوية</label>
+      <select class="form-select" id="f_priority">
+        <option value="high">عالية 🔴</option>
+        <option value="medium">متوسطة 🟡</option>
+        <option value="low">منخفضة 🟢</option>
+      </select>
+    </div>
+    <div class="form-row">
+      <label class="form-label">وصف المقياس</label>
+      <textarea class="form-textarea" id="f_desc" placeholder="وصف مختصر عن هذا المقياس وأهميته..."></textarea>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-save" onclick="saveMetric()">💾 حفظ المقياس</button>
+      <button class="btn-cancel" onclick="closeModal('modalAdd')">إلغاء</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== TOAST ===== -->
+<div class="toast" id="toast">
+  <span class="toast-icon">✅</span>
+  <span id="toastMsg">العملية ناجحة</span>
+</div>
+
+<script>
+// ===== DATA =====
+const roles = [
+  { id:'admin', icon:'👨‍💼', name:'مدير النظام', color:'accent' },
+  { id:'km_manager', icon:'🎯', name:'مدير إدارة المعرفة', color:'accent2' },
+  { id:'analyst', icon:'📈', name:'محلل البيانات', color:'accent3' },
+  { id:'km_officer', icon:'📚', name:'مسؤول المعرفة', color:'accent4' },
+  { id:'employee', icon:'👤', name:'الموظف العام', color:'accent5' }
+];
+
+const menuConfig = {
+  admin:[
+    {id:'dashboard',icon:'🏠',label:'لوحة التحكم'},
+    {id:'metrics',icon:'📊',label:'المقاييس'},
+    {id:'steps',icon:'🔄',label:'خطوات العمل'},
+    {id:'scenarios',icon:'🎯',label:'السيناريوهات'},
+    {id:'reports',icon:'📄',label:'التقارير'}
+  ],
+  km_manager:[
+    {id:'dashboard',icon:'🏠',label:'لوحة التحكم'},
+    {id:'metrics',icon:'📊',label:'المقاييس'},
+    {id:'reports',icon:'📄',label:'التقارير'}
+  ],
+  analyst:[
+    {id:'dashboard',icon:'🏠',label:'لوحة التحكم'},
+    {id:'metrics',icon:'📊',label:'المقاييس'},
+    {id:'steps',icon:'🔄',label:'خطوات العمل'},
+    {id:'reports',icon:'📄',label:'التقارير'}
+  ],
+  km_officer:[
+    {id:'dashboard',icon:'🏠',label:'لوحة التحكم'},
+    {id:'metrics',icon:'📊',label:'المقاييس'},
+    {id:'steps',icon:'🔄',label:'خطوات العمل'}
+  ],
+  employee:[
+    {id:'dashboard',icon:'🏠',label:'لوحتي'},
+    {id:'scenarios',icon:'🎯',label:'السيناريوهات'}
+  ]
+};
+
+let metrics = [
+  {id:1, name:'معدل استخدام المعرفة', category:'utilization', unit:'%', current:78, target:90, priority:'high', desc:'نسبة الوصول والاستخدام الفعلي لمحتوى المعرفة'},
+  {id:2, name:'وقت البحث عن المعلومة', category:'utilization', unit:'days', current:0.5, target:0.25, priority:'high', desc:'متوسط الوقت اللازم للعثور على المعلومة المطلوبة'},
+  {id:3, name:'معدل مشاركة المعرفة', category:'sharing', unit:'%', current:65, target:85, priority:'medium', desc:'نسبة الموظفين المشاركين في مشاركة المعرفة'},
+  {id:4, name:'عدد المساهمات الجديدة', category:'acquisition', unit:'count', current:142, target:200, priority:'medium', desc:'عدد المساهمات المعرفية الجديدة شهرياً'},
+  {id:5, name:'معدل الاحتفاظ بالمعرفة', category:'retention', unit:'%', current:88, target:95, priority:'low', desc:'نسبة المعرفة المحتفظ بها والمحدّثة'},
+  {id:6, name:'تأثير المعرفة على الابتكار', category:'innovation', unit:'score', current:7.2, target:8.5, priority:'high', desc:'درجة تأثير المعرفة على نتائج الابتكار'}
+];
+
+let currentRole = null;
+let currentPage = 'dashboard';
+
+// ===== INIT =====
+function init(){
+  const grid = document.getElementById('roleGrid');
+  grid.innerHTML = roles.map(r=>`
+    <div class="role-card" onclick="selectRole('${r.id}')" data-role="${r.id}">
+      <span class="role-emoji">${r.icon}</span>
+      <span class="role-name">${r.name}</span>
+    </div>
+  `).join('');
+}
+
+function selectRole(id){
+  currentRole = id;
+  document.querySelectorAll('.role-card').forEach(c=>c.classList.remove('selected'));
+  document.querySelector(`[data-role="${id}"]`).classList.add('selected');
+}
+
+function login(){
+  if(!currentRole) return showToast('الرجاء اختيار دور أولاً','⚠️');
+  const r = roles.find(x=>x.id===currentRole);
+  document.getElementById('loginScreen').style.display='none';
+  document.getElementById('app').classList.add('active');
+  document.getElementById('topUserName').textContent = r.name;
+  document.getElementById('topUserRole').textContent = r.id;
+  document.getElementById('topUserIcon').textContent = r.icon;
+  renderSidebar();
+  navigateTo('dashboard');
+}
+
+function logout(){
+  document.getElementById('app').classList.remove('active');
+  document.getElementById('loginScreen').style.display='flex';
+  currentRole=null;
+  document.querySelectorAll('.role-card').forEach(c=>c.classList.remove('selected'));
+}
+
+// ===== SIDEBAR =====
+function renderSidebar(){
+  const menu = menuConfig[currentRole];
+  document.getElementById('sidebar').innerHTML = `
+    <div class="sidebar-section-label">القوائم الرئيسية</div>
+    ${menu.map(m=>`
+      <div class="nav-item ${m.id==='dashboard'?'active':''}" onclick="navigateTo('${m.id}')" data-page="${m.id}">
+        <span class="nav-icon">${m.icon}</span>
+        <span>${m.label}</span>
+      </div>
+    `).join('')}
+  `;
+}
+
+function navigateTo(pageId){
+  currentPage = pageId;
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  const el = document.querySelector(`[data-page="${pageId}"]`);
+  if(el) el.classList.add('active');
+  renderPage(pageId);
+}
+
+// ===== PAGES =====
+function renderPage(id){
+  const c = document.getElementById('content');
+  switch(id){
+    case 'dashboard': c.innerHTML = pageDashboard(); break;
+    case 'metrics': c.innerHTML = pageMetrics(); break;
+    case 'steps': c.innerHTML = pageSteps(); break;
+    case 'scenarios': c.innerHTML = pageScenarios(); break;
+    case 'reports': c.innerHTML = pageReports(); break;
+  }
+}
+
+// --- DASHBOARD ---
+function pageDashboard(){
+  const isAdmin = ['admin','km_manager','analyst'].includes(currentRole);
+  const kpis = isAdmin ? [
+    {icon:'📊', value:'6', label:'مقاييس نشطة', trend:'up', trendVal:'+2', color:'accent'},
+    {icon:'📈', value:'74%', label:'متوسط الإنجاز', trend:'up', trendVal:'+8%', color:'accent2'},
+    {icon:'⚡', value:'3', label:'أولويات عالية', trend:'down', trendVal:'-1', color:'accent3'},
+    {icon:'🎯', value:'88%', label:'الاحتفاظ بالمعرفة', trend:'up', trendVal:'+3%', color:'accent4'},
+    {icon:'💡', value:'7.2', label:'درجة الابتكار', trend:'up', trendVal:'+0.5', color:'gold'}
+  ] : [
+    {icon:'📊', value:'6', label:'مقاييس أراقبها', trend:'neutral', trendVal:'—', color:'accent'},
+    {icon:'📈', value:'74%', label:'متوسط الإنجاز', trend:'up', trendVal:'+8%', color:'accent2'}
+  ];
+
+  return `
+    <div class="page active">
+      <div class="page-header">
+        <div><div class="page-title">لوحة التحكم</div><div class="page-subtitle">نظرة عامة على أداء إدارة المعرفة</div></div>
+      </div>
+      <div class="kpi-grid">
+        ${kpis.map(k=>`
+          <div class="kpi-card" data-color="${k.color}">
+            <div class="kpi-top">
+              <span class="kpi-icon">${k.icon}</span>
+              <span class="kpi-trend ${k.trend}">${k.trend==='up'?'↑':'↓'} ${k.trendVal}</span>
+            </div>
+            <div class="kpi-value">${k.value}</div>
+            <div class="kpi-label">${k.label}</div>
+          </div>
+        `).join('')}
+      </div>
+      <div class="alert-strip">
+        <div class="alert-item">
+          <div class="alert-title">✅ أداء جيد</div>
+          <div class="alert-desc">معدل الاحتفاظ بالمعرفة تجاوز الهدف الربعي</div>
+        </div>
+        <div class="alert-item warn">
+          <div class="alert-title">⚠️ يحتاج انتباه</div>
+          <div class="alert-desc">وقت البحث عن المعلومة لم يصل للهدف المستهدف بعد</div>
+        </div>
+        <div class="alert-item info">
+          <div class="alert-title">💡 اقتراح</div>
+          <div class="alert-desc">إنشاء تقرير شهري للمقاييس الأولوية للإدارة العليا</div>
+        </div>
+      </div>
+    </div>`;
+}
+
+// --- METRICS ---
+function pageMetrics(){
+  const canAdd = ['admin','km_manager','analyst'].includes(currentRole);
+  return `
+    <div class="page active">
+      <div class="page-header">
+        <div><div class="page-title">المقاييس</div><div class="page-subtitle">تتبع وإدارة مقاييس إدارة المعرفة</div></div>
+        ${canAdd ? '<button class="btn-add" onclick="openModal(\'modalAdd\')">➕ إضافة مقياس</button>' : ''}
+      </div>
+      <div class="section-card">
+        <div class="section-header">
+          <div class="section-title">📋 قائمة المقاييس</div>
+          <button class="btn-export" onclick="showToast('تم تصدير التقرير','📥')">📥 تصدير</button>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>المقياس</th>
+                <th>الفئة</th>
+                <th>الإنجاز</th>
+                <th>الحالة</th>
+                <th>الأولوية</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${metrics.map((m,i)=>{
+                const pct = m.unit==='%' ? (m.current/m.target*100) : (m.current/m.target*100);
+                const pctClamped = Math.min(pct,100).toFixed(0);
+                const catLabels = {acquisition:'اكتساب',sharing:'مشاركة',utilization:'استخدام',retention:'احتفاظ',innovation:'ابتكار'};
+                const catBadge = {acquisition:'badge-blue',sharing:'badge-purple',utilization:'badge-green',retention:'badge-yellow',innovation:'badge-red'};
+                const prBadge = {high:'badge-red',medium:'badge-yellow',low:'badge-green'};
+                const prLabel = {high:'عالية',medium:'متوسطة',low:'منخفضة'};
+                const status = pctClamped>=100?'تحقق':pctClamped>=70?'جيد':'متأخر';
+                const statusBadge = pctClamped>=100?'badge-green':pctClamped>=70?'badge-blue':'badge-red';
+                return `
+                  <tr>
+                    <td style="color:var(--text-dim)">${i+1}</td>
+                    <td><strong>${m.name}</strong><div style="font-size:11px;color:var(--text-dim);margin-top:2px">${m.desc}</div></td>
+                    <td><span class="badge ${catBadge[m.category]}">${catLabels[m.category]}</span></td>
+                    <td style="width:180px">
+                      <div style="display:flex;align-items:center;gap:8px">
+                        <div class="progress-bar" style="width:100px"><div class="progress-fill" style="width:${pctClamped}%"></div></div>
+                        <span style="font-size:12px;color:var(--text-dim)">${pctClamped}%</span>
+                      </div>
+                      <div style="font-size:11px;color:var(--text-dim);margin-top:4px">${m.current} / ${m.target} ${m.unit}</div>
+                    </td>
+                    <td><span class="badge ${statusBadge}">${status}</span></td>
+                    <td><span class="badge ${prBadge[m.priority]}">${prLabel[m.priority]}</span></td>
+                  </tr>`;
+              }).join('')}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>`;
+}
+
+// --- STEPS ---
+function pageSteps(){
+  const steps = [
+    {n:1,t:'التقييم والتخطيط',done:true},
+    {n:2,t:'إشراك أصحاب المصلحة',done:true},
+    {n:3,t:'اختيار المقاييس',done:true},
+    {n:4,t:'طرق جمع البيانات',done:true},
+    {n:5,t:'المرجعية',done:false,active:true},
+    {n:6,t:'التطبيق',done:false},
+    {n:7,t:'جمع البيانات',done:false},
+    {n:8,t:'تحليل البيانات',done:false},
+    {n:9,t:'إعداد التقارير',done:false},
+    {n:10,t:'المراجعة والتعديل',done:false},
+    {n:11,t:'ردود الفعل (حلقة)',done:false}
+  ];
+  return `
+    <div class="page active">
+      <div class="page-header">
+        <div><div class="page-title">خطوات العمل</div><div class="page-subtitle">المراحل الـ 11 لإنشاء نظام مقاييس فعال</div></div>
+      </div>
+      <div class="section-card">
+        <div class="section-header">
+          <div class="section-title">🔄 نموذج العمل التفصيلي</div>
+        </div>
+        <div class="steps-grid">
+          ${steps.map(s=>`
+            <div class="step-card ${s.done?'done':s.active?'active-step':''}">
+              <div class="step-num">${s.done?'✓':s.n}</div>
+              <div class="step-text">${s.t}</div>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    </div>`;
+}
+
+// --- SCENARIOS ---
+function pageScenarios(){
+  const scenarios = [
+    {n:1,t:'صنع القرار الاستراتيجي',d:'عمليات الدمج والاستحواذ وتحويل الأعمال'},
+    {n:2,t:'كفاءة العملية',d:'تحسين العمليات وتخصيص الموارد بفعالية'},
+    {n:3,t:'النقاط المعرفية',d:'معدل دوران الموظفين والاحتفاظ بالمعرفة'},
+    {n:4,t:'إدارة الموهبة',d:'تحليل فجوة المهارات وفعالية التدريب'},
+    {n:5,t:'خدمة الزبائن',d:'رضا العملاء والاحتفاظ بهم'},
+    {n:6,t:'الابتكار',d:'فعالية البحث والتطوير والوصول للسوق'},
+    {n:7,t:'رقابة الجودة',d:'مراقبة الامتثال وضمان الجودة'},
+    {n:8,t:'إدارة المخاطر',d:'الاستجابة للأزمات وأمن البيانات'},
+    {n:9,t:'العمليات العالمية',d:'التعاون عبر الحدود والتكيف الثقافي'},
+    {n:10,t:'ميزة تنافسية',d:'تحديد الموقع في السوق والبيعات'}
+  ];
+  return `
+    <div class="page active">
+      <div class="page-header">
+        <div><div class="page-title">السيناريوهات</div><div class="page-subtitle">متى تطبق مقاييس إدارة المعرفة</div></div>
+      </div>
+      <div class="scenario-grid">
+        ${scenarios.map(s=>`
+          <div class="scenario-card" onclick="showToast('سيناريو: ${s.t}','📌')">
+            <span class="scenario-num">السيناريو ${s.n}</span>
+            <div class="scenario-title">${s.t}</div>
+            <div class="scenario-desc">${s.d}</div>
+          </div>
+        `).join('')}
+      </div>
+    </div>`;
+}
+
+// --- REPORTS ---
+function pageReports(){
+  const cats = ['اكتساب','مشاركة','استخدام','احتفاظ','ابتكار'];
+  const vals = [72,65,78,88,61];
+  const colors = ['var(--accent)','var(--accent2)','var(--accent3)','var(--gold)','var(--accent5)'];
+  return `
+    <div class="page active">
+      <div class="page-header">
+        <div><div class="page-title">التقارير</div><div class="page-subtitle">تقارير تفصيلية وتحليلات الأداء</div></div>
+        <button class="btn-export" onclick="showToast('تم تصدير التقرير','📥')">📥 تصدير PDF</button>
+      </div>
+      <div class="section-card">
+        <div class="section-header"><div class="section-title">📊 الأداء حسب الفئة</div></div>
+        ${cats.map((c,i)=>`
+          <div class="chart-row">
+            <div class="chart-label">${c}</div>
+            <div class="chart-bar-wrap">
+              <div class="chart-bar" style="width:${vals[i]}%;background:${colors[i]}">${vals[i]}%</div>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+      <div class="section-card">
+        <div class="section-header"><div class="section-title">📋 ملخص التقارير المتاحة</div></div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>التقرير</th><th>الفترة</th><th>الحالة</th><th>إجراء</th></tr></thead>
+            <tbody>
+              <tr><td>تقرير شهري يناير 2026</td><td>يناير 2026</td><td><span class="badge badge-green">مكتمل</span></td><td><button class="btn-export" onclick="showToast('تم تحميل التقرير','📥')">تحميل</button></td></tr>
+              <tr><td>تقرير ربعي Q4 2025</td><td>أكتوبر - ديسمبر</td><td><span class="badge badge-green">مكتمل</span></td><td><button class="btn-export" onclick="showToast('تم تحميل التقرير','📥')">تحميل</button></td></tr>
+              <tr><td>تقرير فئات المعرفة</td><td>يناير 2026</td><td><span class="badge badge-blue">جاهز</span></td><td><button class="btn-export" onclick="showToast('تم تحميل التقرير','📥')">تحميل</button></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>`;
+}
+
+// ===== MODAL =====
+function openModal(id){ document.getElementById(id).classList.add('active'); }
+function closeModal(id){ document.getElementById(id).classList.remove('active'); }
+
+function saveMetric(){
+  const name = document.getElementById('f_name').value.trim();
+  const cat = document.getElementById('f_category').value;
+  const unit = document.getElementById('f_unit').value;
+  const cur = document.getElementById('f_current').value;
+  const tgt = document.getElementById('f_target').value;
+  const pri = document.getElementById('f_priority').value;
+  const desc = document.getElementById('f_desc').value.trim();
+
+  if(!name || !cur || !tgt){ showToast('الرجاء ملء الحقول المطلوبة','⚠️'); return; }
+
+  metrics.push({
+    id: metrics.length+1,
+    name, category:cat, unit, current:parseFloat(cur),
+    target:parseFloat(tgt), priority:pri, desc
+  });
+
+  closeModal('modalAdd');
+  showToast('تم إضافة المقياس بنجاح','✅');
+  // reset
+  document.getElementById('f_name').value='';
+  document.getElementById('f_current').value='';
+  document.getElementById('f_target').value='';
+  document.getElementById('f_desc').value='';
+  // refresh
+  setTimeout(()=>renderPage('metrics'),300);
+}
+
+// ===== TOAST =====
+function showToast(msg, icon='✅'){
+  const t = document.getElementById('toast');
+  document.getElementById('toastMsg').textContent = msg;
+  t.querySelector('.toast-icon').textContent = icon;
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2800);
+}
+
+// ===== START =====
+init();
+</script>
+</body>
+</html>
