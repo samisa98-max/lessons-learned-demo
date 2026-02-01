@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>نظام إدارة رأس المال الفكري - ICM System</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        :root {
+            --primary: #3F51B5;
+            --secondary: #FFC107;
+            --accent: #9C27B0;
+            --success: #4CAF50;
+            --danger: #F44336;
+        }
+        
+        body {
+            font-family: 'Segoe UI', 'Tajawal', Tahoma, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            direction: rtl;
+        }
+        
+        .login-screen {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .login-box {
+            background: white;
+            border-radius: 16px;
+            padding: 40px;
+            max-width: 550px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        
+        .login-logo h1 {
+            color: var(--primary);
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 28px;
+        }
+        
+        .role-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+        
+        .role-card {
+            padding: 25px;
+            border: 2px solid #E0E0E0;
+            border-radius: 12px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .role-card:hover, .role-card.selected {
+            border-color: var(--primary);
+            background: linear-gradient(135deg, rgba(63, 81, 181, 0.1), rgba(63, 81, 181, 0.05));
+            transform: translateY(-3px);
+        }
+        
+        .role-icon { font-size: 40px; margin-bottom: 10px; }
+        .role-name { font-weight: 600; color: #333; font-size: 14px; }
+        
+        .app { display: none; }
+        .app.active { display: block; }
+        
+        .topbar {
+            background: white;
+            padding: 15px 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .app-title { font-size: 20px; font-weight: 600; color: #333; }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 20px;
+        }
+        
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-secondary { background: var(--secondary); color: #333; }
+        .btn-danger { background: var(--danger); color: white; }
+        
+        .main-container {
+            display: flex;
+            min-height: calc(100vh - 70px);
+        }
+        
+        .sidebar {
+            width: 250px;
+            background: white;
+            padding: 20px 0;
+        }
+        
+        .sidebar-item {
+            padding: 15px 30px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #666;
+            transition: all 0.3s;
+        }
+        
+        .sidebar-item:hover, .sidebar-item.active {
+            background: #F5F5F5;
+            color: var(--primary);
+        }
+        
+        .sidebar-item.active {
+            border-right: 4px solid var(--primary);
+            font-weight: 600;
+        }
+        
+        .content {
+            flex: 1;
+            padding: 30px;
+            overflow-y: auto;
+        }
+        
+        .page { display: none; }
+        .page.active { display: block; animation: fadeIn 0.3s; }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-card {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        
+        .stat-icon { font-size: 36px; margin-bottom: 10px; }
+        .stat-value { font-size: 32px; font-weight: bold; color: var(--primary); margin-bottom: 5px; }
+        .stat-label { color: #666; font-size: 14px; }
+        .stat-change { font-size: 12px; margin-top: 5px; color: var(--success); }
+        
+        .section {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        
+        .section-title {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #E0E0E0;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        th, td {
+            padding: 15px;
+            text-align: right;
+            border-bottom: 1px solid #E0E0E0;
+        }
+        
+        th {
+            background: #F8F9FA;
+            font-weight: 600;
+        }
+        
+        tr:hover { background: #F8F9FA; }
+        
+        .badge {
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        .badge-success { background: #E8F5E9; color: var(--success); }
+        .badge-warning { background: #FFF3E0; color: #FF9800; }
+        .badge-danger { background: #FFEBEE; color: var(--danger); }
+        .badge-info { background: #E3F2FD; color: #2196F3; }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .modal.active { display: flex; }
+        
+        .modal-content {
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            max-width: 600px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #E0E0E0;
+        }
+        
+        .modal-title { font-size: 20px; font-weight: 600; }
+        .close-btn { font-size: 24px; cursor: pointer; color: #666; }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+        
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #E0E0E0;
+            border-radius: 8px;
+        }
+        
+        .form-group textarea { min-height: 100px; }
+        
+        @media (max-width: 768px) {
+            .main-container { flex-direction: column; }
+            .sidebar { width: 100%; }
+            .stats-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Login Screen -->
+    <div class="login-screen" id="loginScreen">
+        <div class="login-box">
+            <div class="login-logo">
+                <h1>💡 نظام إدارة رأس المال الفكري</h1>
+                <p style="text-align: center; color: #666;">اختر دورك للدخول إلى النظام</p>
+            </div>
+            
+            <div class="role-grid">
+                <div class="role-card" onclick="selectRole('admin')">
+                    <div class="role-icon">👨‍💼</div>
+                    <div class="role-name">مدير النظام</div>
+                </div>
+                <div class="role-card" onclick="selectRole('icm_manager')">
+                    <div class="role-icon">🎯</div>
+                    <div class="role-name">مدير رأس المال الفكري</div>
+                </div>
+                <div class="role-card" onclick="selectRole('ip_officer')">
+                    <div class="role-icon">⚖️</div>
+                    <div class="role-name">مسؤول الملكية الفكرية</div>
+                </div>
+                <div class="role-card" onclick="selectRole('researcher')">
+                    <div class="role-icon">🔬</div>
+                    <div class="role-name">باحث/مبتكر</div>
+                </div>
+                <div class="role-card" onclick="selectRole('project_manager')">
+                    <div class="role-icon">📋</div>
+                    <div class="role-name">مدير المشروع</div>
+                </div>
+                <div class="role-card" onclick="selectRole('employee')">
+                    <div class="role-icon">👤</div>
+                    <div class="role-name">الموظف العام</div>
+                </div>
+            </div>
+            
+            <button class="btn btn-primary" onclick="login()" style="width: 100%;">
+                تسجيل الدخول
+            </button>
+        </div>
+    </div>
+
+    <!-- Main App -->
+    <div class="app" id="app">
+        <div class="topbar">
+            <div class="app-title">💡 نظام إدارة رأس المال الفكري</div>
+            <div class="user-info">
+                <div class="user-avatar" id="userAvatar">👤</div>
+                <div>
+                    <div style="font-weight: 600;" id="userName">مستخدم</div>
+                    <div style="font-size: 12px; color: #666;" id="userRole">الدور</div>
+                </div>
+                <button class="btn btn-danger" onclick="logout()">خروج</button>
+            </div>
+        </div>
+
+        <div class="main-container">
+            <div class="sidebar" id="sidebar"></div>
+
+            <div class="content">
+                <!-- Dashboard Page -->
+                <div class="page active" id="page-dashboard">
+                    <div class="stats-grid" id="statsGrid"></div>
+                    
+                    <div class="section">
+                        <div class="section-title">📊 نظرة عامة</div>
+                        <div id="overviewContent"></div>
+                    </div>
+                </div>
+
+                <!-- Assets Page -->
+                <div class="page" id="page-assets">
+                    <div class="section">
+                        <div class="section-title">💎 الأصول الفكرية</div>
+                        <button class="btn btn-primary" onclick="showAddAssetModal()" style="margin-bottom: 20px;" id="addAssetBtn">
+                            ➕ إضافة أصل فكري
+                        </button>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>الاسم</th>
+                                    <th>النوع</th>
+                                    <th>الفئة</th>
+                                    <th>القيمة</th>
+                                    <th>الحالة</th>
+                                    <th>إجراءات</th>
+                                </tr>
+                            </thead>
+                            <tbody id="assetsTable"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Patents Page -->
+                <div class="page" id="page-patents">
+                    <div class="section">
+                        <div class="section-title">📜 براءات الاختراع</div>
+                        <div id="patentsContent"></div>
+                    </div>
+                </div>
+
+                <!-- Valuation Page -->
+                <div class="page" id="page-valuation">
+                    <div class="section">
+                        <div class="section-title">💰 التقييم</div>
+                        <div id="valuationContent"></div>
+                    </div>
+                </div>
+
+                <!-- Licensing Page -->
+                <div class="page" id="page-licensing">
+                    <div class="section">
+                        <div class="section-title">🤝 الترخيص</div>
+                        <div id="licensingContent"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Asset Modal -->
+    <div class="modal" id="addAssetModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">➕ إضافة أصل فكري</div>
+                <div class="close-btn" onclick="closeModal('addAssetModal')">×</div>
+            </div>
+            
+            <form onsubmit="addAsset(event)">
+                <div class="form-group">
+                    <label>اسم الأصل</label>
+                    <input type="text" required id="assetName">
+                </div>
+                
+                <div class="form-group">
+                    <label>نوع الأصل</label>
+                    <select required id="assetType">
+                        <option value="patent">براءة اختراع</option>
+                        <option value="copyright">حقوق نشر</option>
+                        <option value="trademark">علامة تجارية</option>
+                        <option value="trade_secret">سر تجاري</option>
+                        <option value="know_how">معرفة</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label>الفئة</label>
+                    <select required id="assetCategory">
+                        <option value="human">رأس مال بشري</option>
+                        <option value="structural">رأس مال هيكلي</option>
+                        <option value="relational">رأس مال علائقي</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label>الوصف</label>
+                    <textarea required id="assetDescription"></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label>القيمة المقدرة (ريال)</label>
+                    <input type="number" required id="assetValue">
+                </div>
+                
+                <div style="display: flex; gap: 10px;">
+                    <button type="submit" class="btn btn-primary">حفظ</button>
+                    <button type="button" class="btn btn-danger" onclick="closeModal('addAssetModal')">إلغاء</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        let currentRole = null;
+        
+        const assets = [
+            { id: 1, name: 'نظام إدارة المعرفة', type: 'patent', category: 'structural', value: 500000, status: 'active' },
+            { id: 2, name: 'خوارزمية الذكاء الاصطناعي', type: 'trade_secret', category: 'structural', value: 1200000, status: 'active' },
+            { id: 3, name: 'علامة الشركة التجارية', type: 'trademark', category: 'relational', value: 800000, status: 'active' }
+        ];
+
+        const roleConfig = {
+            admin: {
+                name: 'مدير النظام',
+                icon: '👨‍💼',
+                menu: [
+                    { id: 'dashboard', icon: '📊', name: 'لوحة التحكم' },
+                    { id: 'assets', icon: '💎', name: 'الأصول' },
+                    { id: 'patents', icon: '📜', name: 'براءات الاختراع' },
+                    { id: 'valuation', icon: '💰', name: 'التقييم' },
+                    { id: 'licensing', icon: '🤝', name: 'الترخيص' }
+                ]
+            },
+            icm_manager: {
+                name: 'مدير رأس المال الفكري',
+                icon: '🎯',
+                menu: [
+                    { id: 'dashboard', icon: '📊', name: 'لوحة التحكم' },
+                    { id: 'assets', icon: '💎', name: 'الأصول' },
+                    { id: 'valuation', icon: '💰', name: 'التقييم' }
+                ]
+            },
+            ip_officer: {
+                name: 'مسؤول الملكية الفكرية',
+                icon: '⚖️',
+                menu: [
+                    { id: 'dashboard', icon: '📊', name: 'لوحة التحكم' },
+                    { id: 'patents', icon: '📜', name: 'براءات الاختراع' },
+                    { id: 'licensing', icon: '🤝', name: 'الترخيص' }
+                ]
+            },
+            researcher: {
+                name: 'باحث/مبتكر',
+                icon: '🔬',
+                menu: [
+                    { id: 'dashboard', icon: '📊', name: 'لوحتي' },
+                    { id: 'assets', icon: '💎', name: 'مساهماتي' }
+                ]
+            },
+            project_manager: {
+                name: 'مدير المشروع',
+                icon: '📋',
+                menu: [
+                    { id: 'dashboard', icon: '📊', name: 'لوحة التحكم' },
+                    { id: 'assets', icon: '💎', name: 'أصول المشروع' }
+                ]
+            },
+            employee: {
+                name: 'الموظف العام',
+                icon: '👤',
+                menu: [
+                    { id: 'dashboard', icon: '📊', name: 'لوحتي' }
+                ]
+            }
+        };
+
+        function selectRole(role) {
+            currentRole = role;
+            document.querySelectorAll('.role-card').forEach(card => card.classList.remove('selected'));
+            event.target.closest('.role-card').classList.add('selected');
+        }
+
+        function login() {
+            if (!currentRole) {
+                alert('الرجاء اختيار دور للدخول');
+                return;
+            }
+
+            document.getElementById('loginScreen').style.display = 'none';
+            document.getElementById('app').classList.add('active');
+
+            const config = roleConfig[currentRole];
+            document.getElementById('userAvatar').textContent = config.icon;
+            document.getElementById('userName').textContent = config.name;
+            document.getElementById('userRole').textContent = 'مستخدم ' + config.name;
+
+            renderSidebar();
+            renderDashboard();
+        }
+
+        function logout() {
+            document.getElementById('app').classList.remove('active');
+            document.getElementById('loginScreen').style.display = 'flex';
+            currentRole = null;
+            document.querySelectorAll('.role-card').forEach(card => card.classList.remove('selected'));
+        }
+
+        function renderSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const menu = roleConfig[currentRole].menu;
+
+            sidebar.innerHTML = menu.map((item, index) => `
+                <div class="sidebar-item ${index === 0 ? 'active' : ''}" 
+                     onclick="navigateTo('${item.id}')">
+                    <span>${item.icon}</span>
+                    <span>${item.name}</span>
+                </div>
+            `).join('');
+        }
+
+        function navigateTo(pageId) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.getElementById('page-' + pageId).classList.add('active');
+
+            document.querySelectorAll('.sidebar-item').forEach(item => item.classList.remove('active'));
+            event.target.closest('.sidebar-item').classList.add('active');
+
+            if (pageId === 'assets') renderAssets();
+            if (pageId === 'patents') renderPatents();
+            if (pageId === 'valuation') renderValuation();
+            if (pageId === 'licensing') renderLicensing();
+        }
+
+        function renderDashboard() {
+            const stats = getStatsForRole();
+            const statsGrid = document.getElementById('statsGrid');
+
+            statsGrid.innerHTML = stats.map(stat => `
+                <div class="stat-card">
+                    <div class="stat-icon">${stat.icon}</div>
+                    <div class="stat-value">${stat.value}</div>
+                    <div class="stat-label">${stat.label}</div>
+                    ${stat.change ? `<div class="stat-change">↗ ${stat.change}</div>` : ''}
+                </div>
+            `).join('');
+
+            renderOverview();
+        }
+
+        function getStatsForRole() {
+            if (currentRole === 'researcher' || currentRole === 'employee') {
+                return [
+                    { icon: '💡', value: '5', label: 'مساهماتي' },
+                    { icon: '⭐', value: '450', label: 'نقاط التقدير' },
+                    { icon: '📈', value: '3', label: 'أصول نشطة' }
+                ];
+            }
+
+            return [
+                { icon: '💎', value: '156', label: 'إجمالي الأصول', change: '+12' },
+                { icon: '💰', value: '25M', label: 'القيمة الإجمالية', change: '+15%' },
+                { icon: '📜', value: '42', label: 'براءات اختراع', change: '+5' },
+                { icon: '🤝', value: '18', label: 'عقود ترخيص', change: '+3' },
+                { icon: '📊', value: '32%', label: 'عائد الاستثمار', change: '+8%' }
+            ];
+        }
+
+        function renderOverview() {
+            const overview = document.getElementById('overviewContent');
+
+            if (currentRole === 'employee' || currentRole === 'researcher') {
+                overview.innerHTML = `
+                    <p style="color: #666; line-height: 1.8;">
+                        مرحباً بك في نظام إدارة رأس المال الفكري! يمكنك تسجيل أفكارك ومساهماتك وتتبع نقاط التقدير الخاصة بك.
+                    </p>
+                `;
+            } else {
+                overview.innerHTML = `
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px;">
+                        <div style="background: #E8F5E9; padding: 20px; border-radius: 10px; border-right: 4px solid #4CAF50;">
+                            <h3 style="color: #4CAF50; margin-bottom: 10px;">✅ نمو متميز</h3>
+                            <p style="color: #666;">قيمة رأس المال الفكري في نمو مستمر</p>
+                        </div>
+                        <div style="background: #FFF3E0; padding: 20px; border-radius: 10px; border-right: 4px solid #FF9800;">
+                            <h3 style="color: #FF9800; margin-bottom: 10px;">⚠️ انتباه</h3>
+                            <p style="color: #666;">5 براءات تحتاج تجديد قريباً</p>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
+        function renderAssets() {
+            const table = document.getElementById('assetsTable');
+
+            table.innerHTML = assets.map(asset => {
+                const typeLabels = {
+                    patent: 'براءة اختراع',
+                    copyright: 'حقوق نشر',
+                    trademark: 'علامة تجارية',
+                    trade_secret: 'سر تجاري',
+                    know_how: 'معرفة'
+                };
+
+                const categoryLabels = {
+                    human: 'بشري',
+                    structural: 'هيكلي',
+                    relational: 'علائقي'
+                };
+
+                return `
+                    <tr>
+                        <td><strong>${asset.name}</strong></td>
+                        <td>${typeLabels[asset.type]}</td>
+                        <td>${categoryLabels[asset.category]}</td>
+                        <td>${(asset.value / 1000).toFixed(0)}K ريال</td>
+                        <td><span class="badge badge-success">نشط</span></td>
+                        <td><button class="btn btn-primary" style="padding: 6px 12px; font-size: 12px;" onclick="viewAsset(${asset.id})">عرض</button></td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function renderPatents() {
+            const content = document.getElementById('patentsContent');
+            content.innerHTML = `
+                <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px;">
+                    ${[1,2,3].map(i => `
+                        <div style="border: 2px solid #E0E0E0; border-radius: 10px; padding: 20px;">
+                            <div style="font-size: 36px; margin-bottom: 10px;">📜</div>
+                            <h3>براءة اختراع ${i}</h3>
+                            <p style="color: #666; font-size: 14px; margin: 10px 0;">رقم التسجيل: SA-${2024000 + i}</p>
+                            <div style="font-size: 12px; color: #999; margin-bottom: 10px;">
+                                <span class="badge badge-success">نشط</span>
+                            </div>
+                            <button class="btn btn-primary" style="width: 100%;">عرض التفاصيل</button>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        }
+
+        function renderValuation() {
+            const content = document.getElementById('valuationContent');
+            content.innerHTML = `
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-value">25M</div>
+                        <div class="stat-label">القيمة الإجمالية</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">32%</div>
+                        <div class="stat-label">عائد الاستثمار</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">15%</div>
+                        <div class="stat-label">نمو القيمة السنوي</div>
+                    </div>
+                </div>
+                <div style="text-align: center; margin-top: 30px;">
+                    <button class="btn btn-primary" onclick="alert('تقرير التقييم')">📥 تصدير تقرير التقييم</button>
+                </div>
+            `;
+        }
+
+        function renderLicensing() {
+            const content = document.getElementById('licensingContent');
+            content.innerHTML = `
+                <p style="color: #666; margin-bottom: 20px;">عقود الترخيص النشطة</p>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>الأصل</th>
+                            <th>المرخص له</th>
+                            <th>النوع</th>
+                            <th>الإيراد السنوي</th>
+                            <th>الحالة</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>نظام إدارة المعرفة</td>
+                            <td>شركة التقنية</td>
+                            <td>حصري</td>
+                            <td>500K ريال</td>
+                            <td><span class="badge badge-success">نشط</span></td>
+                        </tr>
+                        <tr>
+                            <td>خوارزمية AI</td>
+                            <td>شركة الابتكار</td>
+                            <td>غير حصري</td>
+                            <td>300K ريال</td>
+                            <td><span class="badge badge-success">نشط</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            `;
+        }
+
+        function showAddAssetModal() {
+            document.getElementById('addAssetModal').classList.add('active');
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+        }
+
+        function addAsset(e) {
+            e.preventDefault();
+
+            const newAsset = {
+                id: assets.length + 1,
+                name: document.getElementById('assetName').value,
+                type: document.getElementById('assetType').value,
+                category: document.getElementById('assetCategory').value,
+                value: parseInt(document.getElementById('assetValue').value),
+                status: 'active'
+            };
+
+            assets.push(newAsset);
+            renderAssets();
+            closeModal('addAssetModal');
+
+            alert('✅ تم إضافة الأصل الفكري بنجاح!');
+        }
+
+        function viewAsset(id) {
+            const asset = assets.find(a => a.id === id);
+            alert(`عرض تفاصيل الأصل:\n\nالاسم: ${asset.name}\nالقيمة: ${asset.value} ريال`);
+        }
+    </script>
+</body>
+</html>
