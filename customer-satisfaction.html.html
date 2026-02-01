@@ -1,0 +1,815 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>نظام تحسين رضا العملاء - Customer Satisfaction System</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        :root {
+            --primary: #2196F3;
+            --success: #4CAF50;
+            --warning: #FF9800;
+            --danger: #F44336;
+            --info: #00BCD4;
+        }
+        
+        body {
+            font-family: 'Segoe UI', 'Tajawal', Tahoma, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            direction: rtl;
+        }
+        
+        .login-screen {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .login-box {
+            background: white;
+            border-radius: 16px;
+            padding: 40px;
+            max-width: 500px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        
+        .login-logo h1 {
+            color: var(--primary);
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .role-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+        
+        .role-card {
+            padding: 25px;
+            border: 2px solid #E0E0E0;
+            border-radius: 12px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .role-card:hover, .role-card.selected {
+            border-color: var(--primary);
+            background: linear-gradient(135deg, rgba(33, 150, 243, 0.1), rgba(33, 150, 243, 0.05));
+            transform: translateY(-3px);
+        }
+        
+        .role-icon { font-size: 40px; margin-bottom: 10px; }
+        .role-name { font-weight: 600; color: #333; }
+        
+        .app {
+            display: none;
+        }
+        
+        .app.active { display: block; }
+        
+        .topbar {
+            background: white;
+            padding: 15px 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .app-title { font-size: 20px; font-weight: 600; color: #333; }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 20px;
+        }
+        
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+        
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+        }
+        
+        .main-container {
+            display: flex;
+            min-height: calc(100vh - 70px);
+        }
+        
+        .sidebar {
+            width: 250px;
+            background: white;
+            padding: 20px 0;
+        }
+        
+        .sidebar-item {
+            padding: 15px 30px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #666;
+            transition: all 0.3s;
+        }
+        
+        .sidebar-item:hover, .sidebar-item.active {
+            background: #F5F5F5;
+            color: var(--primary);
+        }
+        
+        .sidebar-item.active {
+            border-right: 4px solid var(--primary);
+            font-weight: 600;
+        }
+        
+        .content {
+            flex: 1;
+            padding: 30px;
+            overflow-y: auto;
+        }
+        
+        .page {
+            display: none;
+        }
+        
+        .page.active {
+            display: block;
+            animation: fadeIn 0.3s;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-card {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        
+        .stat-icon { font-size: 36px; margin-bottom: 10px; }
+        .stat-value { font-size: 32px; font-weight: bold; color: var(--primary); margin-bottom: 5px; }
+        .stat-label { color: #666; font-size: 14px; }
+        .stat-change { font-size: 12px; margin-top: 5px; color: var(--success); }
+        
+        .section {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        
+        .section-title {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #E0E0E0;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        th, td {
+            padding: 15px;
+            text-align: right;
+            border-bottom: 1px solid #E0E0E0;
+        }
+        
+        th {
+            background: #F8F9FA;
+            font-weight: 600;
+        }
+        
+        tr:hover {
+            background: #F8F9FA;
+        }
+        
+        .badge {
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        .badge-success { background: #E8F5E9; color: var(--success); }
+        .badge-warning { background: #FFF3E0; color: var(--warning); }
+        .badge-danger { background: #FFEBEE; color: var(--danger); }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .modal.active { display: flex; }
+        
+        .modal-content {
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            max-width: 600px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #E0E0E0;
+        }
+        
+        .modal-title {
+            font-size: 20px;
+            font-weight: 600;
+        }
+        
+        .close-btn {
+            font-size: 24px;
+            cursor: pointer;
+            color: #666;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+        
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #E0E0E0;
+            border-radius: 8px;
+        }
+        
+        .form-group textarea {
+            min-height: 100px;
+        }
+        
+        @media (max-width: 768px) {
+            .main-container {
+                flex-direction: column;
+            }
+            .sidebar {
+                width: 100%;
+            }
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Login Screen -->
+    <div class="login-screen" id="loginScreen">
+        <div class="login-box">
+            <div class="login-logo">
+                <h1>😊 نظام تحسين رضا العملاء</h1>
+                <p style="text-align: center; color: #666;">اختر دورك للدخول إلى النظام</p>
+            </div>
+            
+            <div class="role-grid">
+                <div class="role-card" onclick="selectRole('admin')">
+                    <div class="role-icon">👨‍💼</div>
+                    <div class="role-name">مدير النظام</div>
+                </div>
+                <div class="role-card" onclick="selectRole('cs_manager')">
+                    <div class="role-icon">👔</div>
+                    <div class="role-name">مدير خدمة العملاء</div>
+                </div>
+                <div class="role-card" onclick="selectRole('analyst')">
+                    <div class="role-icon">📊</div>
+                    <div class="role-name">محلل رضا العملاء</div>
+                </div>
+                <div class="role-card" onclick="selectRole('agent')">
+                    <div class="role-icon">🎧</div>
+                    <div class="role-name">وكيل خدمة</div>
+                </div>
+                <div class="role-card" onclick="selectRole('product_manager')">
+                    <div class="role-icon">🎯</div>
+                    <div class="role-name">مدير المنتج</div>
+                </div>
+                <div class="role-card" onclick="selectRole('customer')">
+                    <div class="role-icon">👤</div>
+                    <div class="role-name">العميل</div>
+                </div>
+            </div>
+            
+            <button class="btn btn-primary" onclick="login()" style="width: 100%;">
+                تسجيل الدخول
+            </button>
+        </div>
+    </div>
+
+    <!-- Main App -->
+    <div class="app" id="app">
+        <div class="topbar">
+            <div class="app-title">😊 نظام تحسين رضا العملاء</div>
+            <div class="user-info">
+                <div class="user-avatar" id="userAvatar">👤</div>
+                <div>
+                    <div style="font-weight: 600;" id="userName">مستخدم</div>
+                    <div style="font-size: 12px; color: #666;" id="userRole">الدور</div>
+                </div>
+                <button class="btn btn-danger" onclick="logout()">خروج</button>
+            </div>
+        </div>
+
+        <div class="main-container">
+            <div class="sidebar" id="sidebar"></div>
+
+            <div class="content">
+                <!-- Dashboard Page -->
+                <div class="page active" id="page-dashboard">
+                    <div class="stats-grid" id="statsGrid"></div>
+                    
+                    <div class="section">
+                        <div class="section-title">📊 نظرة عامة</div>
+                        <div id="overviewContent"></div>
+                    </div>
+                </div>
+
+                <!-- Interactions Page -->
+                <div class="page" id="page-interactions">
+                    <div class="section">
+                        <div class="section-title">💬 تفاعلات العملاء</div>
+                        <button class="btn btn-primary" onclick="showAddInteractionModal()" style="margin-bottom: 20px;" id="addInteractionBtn">
+                            ➕ تسجيل تفاعل جديد
+                        </button>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>العميل</th>
+                                    <th>القناة</th>
+                                    <th>الموضوع</th>
+                                    <th>الحالة</th>
+                                    <th>التقييم</th>
+                                    <th>إجراءات</th>
+                                </tr>
+                            </thead>
+                            <tbody id="interactionsTable"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Knowledge Base Page -->
+                <div class="page" id="page-knowledge">
+                    <div class="section">
+                        <div class="section-title">📚 قاعدة المعرفة</div>
+                        <div id="knowledgeContent"></div>
+                    </div>
+                </div>
+
+                <!-- Analytics Page -->
+                <div class="page" id="page-analytics">
+                    <div class="section">
+                        <div class="section-title">📈 التحليلات والرؤى</div>
+                        <div id="analyticsContent"></div>
+                    </div>
+                </div>
+
+                <!-- Surveys Page -->
+                <div class="page" id="page-surveys">
+                    <div class="section">
+                        <div class="section-title">📝 الاستطلاعات</div>
+                        <div id="surveysContent"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Interaction Modal -->
+    <div class="modal" id="addInteractionModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">➕ تسجيل تفاعل جديد</div>
+                <div class="close-btn" onclick="closeModal('addInteractionModal')">×</div>
+            </div>
+            
+            <form onsubmit="addInteraction(event)">
+                <div class="form-group">
+                    <label>العميل</label>
+                    <input type="text" required id="customerName">
+                </div>
+                
+                <div class="form-group">
+                    <label>القناة</label>
+                    <select required id="channel">
+                        <option value="phone">📞 هاتف</option>
+                        <option value="email">📧 بريد إلكتروني</option>
+                        <option value="chat">💬 دردشة</option>
+                        <option value="social">📱 وسائل التواصل</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label>الموضوع</label>
+                    <input type="text" required id="subject">
+                </div>
+                
+                <div class="form-group">
+                    <label>الوصف</label>
+                    <textarea required id="description"></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label>الأولوية</label>
+                    <select required id="priority">
+                        <option value="low">منخفضة</option>
+                        <option value="medium">متوسطة</option>
+                        <option value="high">عالية</option>
+                    </select>
+                </div>
+                
+                <div style="display: flex; gap: 10px;">
+                    <button type="submit" class="btn btn-primary">حفظ</button>
+                    <button type="button" class="btn btn-danger" onclick="closeModal('addInteractionModal')">إلغاء</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        let currentRole = null;
+        
+        const interactions = [
+            { id: 1, customer: 'أحمد محمد', channel: 'phone', subject: 'استفسار عن المنتج', status: 'resolved', rating: 5, date: '2026-01-30' },
+            { id: 2, customer: 'سارة أحمد', channel: 'email', subject: 'شكوى عن الخدمة', status: 'in_progress', rating: null, date: '2026-01-31' },
+            { id: 3, customer: 'محمد خالد', channel: 'chat', subject: 'مشكلة تقنية', status: 'resolved', rating: 4, date: '2026-01-30' }
+        ];
+
+        const roleConfig = {
+            admin: {
+                name: 'مدير النظام',
+                icon: '👨‍💼',
+                menu: [
+                    { id: 'dashboard', icon: '📊', name: 'لوحة التحكم' },
+                    { id: 'interactions', icon: '💬', name: 'التفاعلات' },
+                    { id: 'knowledge', icon: '📚', name: 'قاعدة المعرفة' },
+                    { id: 'analytics', icon: '📈', name: 'التحليلات' },
+                    { id: 'surveys', icon: '📝', name: 'الاستطلاعات' }
+                ]
+            },
+            cs_manager: {
+                name: 'مدير خدمة العملاء',
+                icon: '👔',
+                menu: [
+                    { id: 'dashboard', icon: '📊', name: 'لوحة التحكم' },
+                    { id: 'interactions', icon: '💬', name: 'التفاعلات' },
+                    { id: 'analytics', icon: '📈', name: 'التحليلات' }
+                ]
+            },
+            analyst: {
+                name: 'محلل رضا العملاء',
+                icon: '📊',
+                menu: [
+                    { id: 'dashboard', icon: '📊', name: 'لوحة التحكم' },
+                    { id: 'analytics', icon: '📈', name: 'التحليلات' },
+                    { id: 'surveys', icon: '📝', name: 'الاستطلاعات' }
+                ]
+            },
+            agent: {
+                name: 'وكيل خدمة',
+                icon: '🎧',
+                menu: [
+                    { id: 'dashboard', icon: '📊', name: 'لوحتي' },
+                    { id: 'interactions', icon: '💬', name: 'تفاعلاتي' },
+                    { id: 'knowledge', icon: '📚', name: 'قاعدة المعرفة' }
+                ]
+            },
+            product_manager: {
+                name: 'مدير المنتج',
+                icon: '🎯',
+                menu: [
+                    { id: 'dashboard', icon: '📊', name: 'لوحة التحكم' },
+                    { id: 'analytics', icon: '📈', name: 'تحليلات المنتج' }
+                ]
+            },
+            customer: {
+                name: 'العميل',
+                icon: '👤',
+                menu: [
+                    { id: 'dashboard', icon: '📊', name: 'حسابي' },
+                    { id: 'knowledge', icon: '📚', name: 'المساعدة الذاتية' },
+                    { id: 'surveys', icon: '📝', name: 'التقييمات' }
+                ]
+            }
+        };
+
+        function selectRole(role) {
+            currentRole = role;
+            document.querySelectorAll('.role-card').forEach(card => card.classList.remove('selected'));
+            event.target.closest('.role-card').classList.add('selected');
+        }
+
+        function login() {
+            if (!currentRole) {
+                alert('الرجاء اختيار دور للدخول');
+                return;
+            }
+
+            document.getElementById('loginScreen').style.display = 'none';
+            document.getElementById('app').classList.add('active');
+
+            const config = roleConfig[currentRole];
+            document.getElementById('userAvatar').textContent = config.icon;
+            document.getElementById('userName').textContent = config.name;
+            document.getElementById('userRole').textContent = 'مستخدم ' + config.name;
+
+            renderSidebar();
+            renderDashboard();
+        }
+
+        function logout() {
+            document.getElementById('app').classList.remove('active');
+            document.getElementById('loginScreen').style.display = 'flex';
+            currentRole = null;
+            document.querySelectorAll('.role-card').forEach(card => card.classList.remove('selected'));
+        }
+
+        function renderSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const menu = roleConfig[currentRole].menu;
+
+            sidebar.innerHTML = menu.map((item, index) => `
+                <div class="sidebar-item ${index === 0 ? 'active' : ''}" 
+                     onclick="navigateTo('${item.id}')">
+                    <span>${item.icon}</span>
+                    <span>${item.name}</span>
+                </div>
+            `).join('');
+        }
+
+        function navigateTo(pageId) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.getElementById('page-' + pageId).classList.add('active');
+
+            document.querySelectorAll('.sidebar-item').forEach(item => item.classList.remove('active'));
+            event.target.closest('.sidebar-item').classList.add('active');
+
+            if (pageId === 'interactions') renderInteractions();
+            if (pageId === 'knowledge') renderKnowledge();
+            if (pageId === 'analytics') renderAnalytics();
+            if (pageId === 'surveys') renderSurveys();
+        }
+
+        function renderDashboard() {
+            const stats = getStatsForRole();
+            const statsGrid = document.getElementById('statsGrid');
+
+            statsGrid.innerHTML = stats.map(stat => `
+                <div class="stat-card">
+                    <div class="stat-icon">${stat.icon}</div>
+                    <div class="stat-value">${stat.value}</div>
+                    <div class="stat-label">${stat.label}</div>
+                    ${stat.change ? `<div class="stat-change">↗ ${stat.change}</div>` : ''}
+                </div>
+            `).join('');
+
+            renderOverview();
+        }
+
+        function getStatsForRole() {
+            if (currentRole === 'customer') {
+                return [
+                    { icon: '⭐', value: '4.5/5', label: 'تقييمك للخدمة' },
+                    { icon: '💬', value: '12', label: 'تفاعلاتك' },
+                    { icon: '✅', value: '10', label: 'مشاكل محلولة' }
+                ];
+            }
+
+            return [
+                { icon: '😊', value: '85%', label: 'CSAT Score', change: '+5%' },
+                { icon: '📊', value: '52', label: 'NPS Score', change: '+8' },
+                { icon: '💬', value: '1,234', label: 'التفاعلات', change: '+124' },
+                { icon: '✅', value: '78%', label: 'FCR Rate', change: '+3%' },
+                { icon: '⏱️', value: '18 ساعة', label: 'متوسط وقت الحل' }
+            ];
+        }
+
+        function renderOverview() {
+            const overview = document.getElementById('overviewContent');
+
+            if (currentRole === 'customer') {
+                overview.innerHTML = `
+                    <p style="color: #666; line-height: 1.8;">
+                        مرحباً بك في بوابة العملاء! يمكنك هنا متابعة طلباتك، الوصول للمساعدة الذاتية، وتقييم خدماتنا.
+                    </p>
+                `;
+            } else {
+                overview.innerHTML = `
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px;">
+                        <div style="background: #E8F5E9; padding: 20px; border-radius: 10px; border-right: 4px solid #4CAF50;">
+                            <h3 style="color: #4CAF50; margin-bottom: 10px;">✅ أداء ممتاز</h3>
+                            <p style="color: #666;">نسبة رضا العملاء في تحسن مستمر</p>
+                        </div>
+                        <div style="background: #FFF3E0; padding: 20px; border-radius: 10px; border-right: 4px solid #FF9800;">
+                            <h3 style="color: #FF9800; margin-bottom: 10px;">⚠️ يحتاج انتباه</h3>
+                            <p style="color: #666;">5 تفاعلات تحتاج متابعة عاجلة</p>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
+        function renderInteractions() {
+            const table = document.getElementById('interactionsTable');
+
+            table.innerHTML = interactions.map(int => {
+                const statusBadge = int.status === 'resolved' ? 'success' : 'warning';
+                const statusText = int.status === 'resolved' ? 'محلول' : 'قيد المعالجة';
+                const ratingStars = int.rating ? '⭐'.repeat(int.rating) : '-';
+
+                return `
+                    <tr>
+                        <td>${int.customer}</td>
+                        <td>${int.channel === 'phone' ? '📞 هاتف' : int.channel === 'email' ? '📧 بريد' : '💬 دردشة'}</td>
+                        <td>${int.subject}</td>
+                        <td><span class="badge badge-${statusBadge}">${statusText}</span></td>
+                        <td>${ratingStars}</td>
+                        <td><button class="btn btn-primary" style="padding: 6px 12px; font-size: 12px;" onclick="viewInteraction(${int.id})">عرض</button></td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function renderKnowledge() {
+            const content = document.getElementById('knowledgeContent');
+            content.innerHTML = `
+                <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 20px;">
+                    ${[1,2,3,4,5,6].map(i => `
+                        <div style="border: 2px solid #E0E0E0; border-radius: 10px; padding: 20px;">
+                            <div style="font-size: 36px; margin-bottom: 10px;">📄</div>
+                            <h3>مقالة معرفية ${i}</h3>
+                            <p style="color: #666; font-size: 14px; margin: 10px 0;">دليل شامل لحل المشكلة ${i}</p>
+                            <div style="font-size: 12px; color: #999; margin-bottom: 10px;">👁️ 245 | 👍 42</div>
+                            <button class="btn btn-primary" style="width: 100%;">قراءة</button>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        }
+
+        function renderAnalytics() {
+            const content = document.getElementById('analyticsContent');
+            content.innerHTML = `
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-value">85%</div>
+                        <div class="stat-label">CSAT - رضا العملاء</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">52</div>
+                        <div class="stat-label">NPS - صافي الترويج</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">2.8</div>
+                        <div class="stat-label">CES - جهد العميل</div>
+                    </div>
+                </div>
+                <div style="text-align: center; margin-top: 30px;">
+                    <button class="btn btn-primary" onclick="alert('تصدير التقرير')">📥 تصدير التقرير</button>
+                </div>
+            `;
+        }
+
+        function renderSurveys() {
+            const content = document.getElementById('surveysContent');
+            
+            if (currentRole === 'customer') {
+                content.innerHTML = `
+                    <div style="background: #F8F9FA; padding: 30px; border-radius: 10px;">
+                        <h3 style="margin-bottom: 20px;">كيف كانت تجربتك معنا؟</h3>
+                        <div style="margin-bottom: 20px;">
+                            <label style="display: block; margin-bottom: 10px; font-weight: 600;">التقييم العام</label>
+                            <div style="font-size: 32px;">
+                                ${[1,2,3,4,5].map(i => `<span style="cursor: pointer;" onclick="alert('تم التقييم بـ ${i} نجوم')">⭐</span>`).join('')}
+                            </div>
+                        </div>
+                        <div style="margin-bottom: 20px;">
+                            <label style="display: block; margin-bottom: 10px; font-weight: 600;">هل توصي بخدماتنا؟</label>
+                            <div style="display: flex; gap: 10px;">
+                                ${[0,1,2,3,4,5,6,7,8,9,10].map(i => `
+                                    <button class="btn btn-primary" style="padding: 10px 15px;" onclick="alert('اخترت ${i}')">${i}</button>
+                                `).join('')}
+                            </div>
+                        </div>
+                        <button class="btn btn-primary" style="width: 100%;">إرسال التقييم</button>
+                    </div>
+                `;
+            } else {
+                content.innerHTML = `
+                    <p style="color: #666; margin-bottom: 20px;">نتائج الاستطلاعات الأخيرة</p>
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-value">342</div>
+                            <div class="stat-label">استطلاعات مكتملة</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value">4.2/5</div>
+                            <div class="stat-label">متوسط التقييم</div>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
+        function showAddInteractionModal() {
+            document.getElementById('addInteractionModal').classList.add('active');
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+        }
+
+        function addInteraction(e) {
+            e.preventDefault();
+
+            const newInteraction = {
+                id: interactions.length + 1,
+                customer: document.getElementById('customerName').value,
+                channel: document.getElementById('channel').value,
+                subject: document.getElementById('subject').value,
+                status: 'in_progress',
+                rating: null,
+                date: new Date().toISOString().split('T')[0]
+            };
+
+            interactions.push(newInteraction);
+            renderInteractions();
+            closeModal('addInteractionModal');
+
+            alert('✅ تم تسجيل التفاعل بنجاح!');
+        }
+
+        function viewInteraction(id) {
+            const int = interactions.find(i => i.id === id);
+            alert(`عرض تفاصيل التفاعل:\n\nالعميل: ${int.customer}\nالموضوع: ${int.subject}\nالحالة: ${int.status}`);
+        }
+    </script>
+</body>
+</html>
