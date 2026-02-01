@@ -1,0 +1,1306 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>نظام رحلة التعلم التنظيمي - Learning Journey System</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Segoe UI', 'Tajawal', Tahoma, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            direction: rtl;
+        }
+        
+        .container { max-width: 1400px; margin: 0 auto; }
+        
+        .header {
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        
+        .header h1 {
+            color: #667eea;
+            font-size: 32px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .role-selector {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .role-btn {
+            padding: 15px 30px;
+            background: white;
+            border: 2px solid #E0E0E0;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        
+        .role-btn:hover { transform: translateY(-3px); border-color: #667eea; }
+        .role-btn.active {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border-color: #667eea;
+        }
+        
+        .main-section {
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        
+        .section-title {
+            font-size: 24px;
+            color: #333;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #E0E0E0;
+        }
+        
+        .role-view { display: none; }
+        .role-view.active { display: block; animation: fadeIn 0.3s; }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .topics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .topic-card {
+            background: #F8F9FA;
+            padding: 20px;
+            border-radius: 10px;
+            border-right: 4px solid #667eea;
+            transition: all 0.3s;
+            position: relative;
+        }
+        
+        .topic-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .topic-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        
+        .topic-meta {
+            display: flex;
+            gap: 15px;
+            font-size: 13px;
+            color: #666;
+            flex-wrap: wrap;
+        }
+        
+        .badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        .badge-soft { background: #E3F2FD; color: #1976D2; }
+        .badge-hard { background: #FFF3E0; color: #F57C00; }
+        .badge-hr { background: #E8F5E9; color: #4CAF50; }
+        .badge-manager { background: #F3E5F5; color: #7B1FA2; }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 600;
+            font-size: 15px;
+        }
+        
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #E0E0E0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+            font-family: inherit;
+        }
+        
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .form-group textarea { min-height: 100px; resize: vertical; }
+        
+        .btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+        
+        .btn-secondary {
+            background: white;
+            color: #667eea;
+            border: 2px solid #667eea;
+        }
+        
+        .btn-secondary:hover { background: #667eea; color: white; }
+        
+        .journey-timeline {
+            position: relative;
+            padding: 20px 0;
+        }
+        
+        .journey-step {
+            background: white;
+            border: 2px solid #E0E0E0;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            position: relative;
+            padding-right: 80px;
+        }
+        
+        .journey-step.completed {
+            border-color: #4CAF50;
+            background: #E8F5E9;
+        }
+        
+        .journey-step.active {
+            border-color: #667eea;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
+        }
+        
+        .step-icon {
+            position: absolute;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: #E0E0E0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+        
+        .journey-step.completed .step-icon {
+            background: #4CAF50;
+            color: white;
+        }
+        
+        .journey-step.active .step-icon {
+            background: #667eea;
+            color: white;
+        }
+        
+        .step-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+        }
+        
+        .step-description {
+            color: #666;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        
+        .schedule-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        
+        .schedule-table th,
+        .schedule-table td {
+            padding: 12px;
+            text-align: right;
+            border-bottom: 1px solid #E0E0E0;
+        }
+        
+        .schedule-table th {
+            background: #F8F9FA;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .schedule-table tr:hover {
+            background: #F8F9FA;
+        }
+        
+        .learning-method {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+            background: #E3F2FD;
+            color: #1976D2;
+        }
+        
+        .progress-bar-container {
+            background: #E0E0E0;
+            border-radius: 10px;
+            height: 10px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+        
+        .progress-bar {
+            background: linear-gradient(90deg, #4CAF50, #45a049);
+            height: 100%;
+            border-radius: 10px;
+            transition: width 0.3s;
+        }
+        
+        .report-card {
+            background: white;
+            border: 2px solid #E0E0E0;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 20px;
+        }
+        
+        .report-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #E0E0E0;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .stat-card {
+            background: #F8F9FA;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 32px;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+        
+        .stat-label {
+            color: #666;
+            font-size: 13px;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            overflow-y: auto;
+        }
+        
+        .modal.active { display: flex; }
+        
+        .modal-content {
+            background: white;
+            border-radius: 16px;
+            padding: 40px;
+            max-width: 700px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+        }
+        
+        .close-btn {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            font-size: 30px;
+            cursor: pointer;
+            color: #666;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background: #f5f5f5;
+            transition: all 0.3s;
+        }
+        
+        .close-btn:hover { background: #F44336; color: white; }
+        
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+        
+        @media (max-width: 768px) {
+            .topics-grid { grid-template-columns: 1fr; }
+            .stats-grid { grid-template-columns: 1fr; }
+            .modal-content { padding: 20px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1><span>📚</span>نظام رحلة التعلم التنظيمي</h1>
+            <p style="color: #666; margin-top: 10px; line-height: 1.6;">
+                نظام متكامل لإدارة رحلة التعلم من التخطيط إلى التقييم - وفق أدوار محددة لكل مستوى
+            </p>
+        </div>
+
+        <!-- Role Selector -->
+        <div class="role-selector">
+            <button class="role-btn active" onclick="switchRole('hr')">
+                <span>👥</span>إدارة الموارد البشرية
+            </button>
+            <button class="role-btn" onclick="switchRole('manager')">
+                <span>👔</span>الرئيس المباشر
+            </button>
+            <button class="role-btn" onclick="switchRole('employee')">
+                <span>👤</span>الموظف
+            </button>
+        </div>
+
+        <!-- HR View -->
+        <div id="view-hr" class="role-view active">
+            <div class="main-section">
+                <h2 class="section-title">
+                    <span>👥</span>
+                    مهام إدارة الموارد البشرية
+                </h2>
+                
+                <div style="background: #E8F5E9; padding: 20px; border-radius: 10px; border-right: 4px solid #4CAF50; margin-bottom: 25px;">
+                    <h3 style="color: #2E7D32; margin-bottom: 10px;">📋 المسؤوليات:</h3>
+                    <ul style="list-style-position: inside; color: #555; line-height: 2;">
+                        <li>إضافة عناوين الموضوعات وفق الإطار الاستراتيجي للمنظمة</li>
+                        <li>إضافة عناوين المهارات اللينة المطلوبة خلال السنة المالية</li>
+                    </ul>
+                </div>
+
+                <h3 style="margin-bottom: 15px; color: #333;">إضافة موضوع تعليمي جديد</h3>
+                
+                <div class="form-group">
+                    <label>عنوان الموضوع</label>
+                    <input type="text" id="hrTopicTitle" placeholder="مثال: تطوير مهارات القيادة التحويلية">
+                </div>
+                
+                <div class="form-group">
+                    <label>نوع المهارة</label>
+                    <select id="hrSkillType">
+                        <option value="soft">🤝 مهارات لينة (عابرة للتخصصات)</option>
+                        <option value="hard">💻 مهارات صلبة (تخصصية)</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label>الأولوية الاستراتيجية</label>
+                    <select id="hrPriority">
+                        <option value="high">عالية - متطلب حرج</option>
+                        <option value="medium">متوسطة - مهم للتطوير</option>
+                        <option value="low">منخفضة - تطوير إضافي</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label>ملاحظات إضافية</label>
+                    <textarea id="hrNotes" placeholder="أي ملاحظات حول أهمية هذا الموضوع استراتيجياً"></textarea>
+                </div>
+                
+                <button class="btn btn-primary" onclick="addHRTopic()">
+                    ✅ إضافة الموضوع
+                </button>
+            </div>
+
+            <div class="main-section">
+                <h2 class="section-title">
+                    <span>📚</span>
+                    الموضوعات المضافة من الموارد البشرية
+                </h2>
+                <div id="hrTopicsList" class="topics-grid"></div>
+            </div>
+        </div>
+
+        <!-- Manager View -->
+        <div id="view-manager" class="role-view">
+            <div class="main-section">
+                <h2 class="section-title">
+                    <span>👔</span>
+                    مهام الرئيس المباشر
+                </h2>
+                
+                <div style="background: #F3E5F5; padding: 20px; border-radius: 10px; border-right: 4px solid #7B1FA2; margin-bottom: 25px;">
+                    <h3 style="color: #7B1FA2; margin-bottom: 10px;">📋 المسؤوليات:</h3>
+                    <ul style="list-style-position: inside; color: #555; line-height: 2;">
+                        <li>إضافة عناوين موضوعات مرتبطة بمجال اختصاص القسم/الوحدة</li>
+                        <li>إضافة عناوين المهارات اللينة المطلوبة للعمل في القسم</li>
+                    </ul>
+                </div>
+
+                <h3 style="margin-bottom: 15px; color: #333;">إضافة موضوع خاص بالقسم</h3>
+                
+                <div class="form-group">
+                    <label>عنوان الموضوع</label>
+                    <input type="text" id="managerTopicTitle" placeholder="مثال: إدارة مشاريع Agile">
+                </div>
+                
+                <div class="form-group">
+                    <label>نوع المهارة</label>
+                    <select id="managerSkillType">
+                        <option value="hard">💻 مهارات صلبة (تخصصية للقسم)</option>
+                        <option value="soft">🤝 مهارات لينة (مطلوبة للقسم)</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label>القسم/الوحدة</label>
+                    <input type="text" id="managerDepartment" placeholder="مثال: قسم تقنية المعلومات">
+                </div>
+                
+                <div class="form-group">
+                    <label>مبررات الاحتياج</label>
+                    <textarea id="managerJustification" placeholder="لماذا يحتاج الموظفون في القسم لهذا الموضوع؟"></textarea>
+                </div>
+                
+                <button class="btn btn-primary" onclick="addManagerTopic()">
+                    ✅ إضافة الموضوع
+                </button>
+            </div>
+
+            <div class="main-section">
+                <h2 class="section-title">
+                    <span>📚</span>
+                    الموضوعات المضافة من الرئيس المباشر
+                </h2>
+                <div id="managerTopicsList" class="topics-grid"></div>
+            </div>
+        </div>
+
+        <!-- Employee View -->
+        <div id="view-employee" class="role-view">
+            <div class="main-section">
+                <h2 class="section-title">
+                    <span>👤</span>
+                    مهام الموظف
+                </h2>
+                
+                <div style="background: #E3F2FD; padding: 20px; border-radius: 10px; border-right: 4px solid #1976D2; margin-bottom: 25px;">
+                    <h3 style="color: #1976D2; margin-bottom: 10px;">📋 المسؤوليات:</h3>
+                    <ul style="list-style-position: inside; color: #555; line-height: 2;">
+                        <li>جدولة الموضوعات المضافة من HR والرئيس المباشر</li>
+                        <li>تحديد نوع/أسلوب التعلم لكل موضوع</li>
+                        <li>متابعة الإنجاز وتقييم مخرجات التعلم</li>
+                        <li>إعداد تقرير عن الخبرة التعلمية</li>
+                    </ul>
+                </div>
+
+                <!-- Learning Journey -->
+                <h3 style="margin-bottom: 15px; color: #333;">🗺️ رحلة التعلم</h3>
+                
+                <div class="journey-timeline">
+                    <div class="journey-step completed">
+                        <div class="step-icon">✅</div>
+                        <div class="step-title">1. وضع الخطة</div>
+                        <div class="step-description">
+                            تم استلام الموضوعات من HR والرئيس المباشر - جاهز للجدولة
+                        </div>
+                    </div>
+
+                    <div class="journey-step active">
+                        <div class="step-icon">📅</div>
+                        <div class="step-title">2. الجدولة واختيار أسلوب التعلم</div>
+                        <div class="step-description">
+                            حدد المواعيد وأساليب التعلم المناسبة لكل موضوع
+                        </div>
+                    </div>
+
+                    <div class="journey-step">
+                        <div class="step-icon">🎓</div>
+                        <div class="step-title">3. اعتماد الخطة</div>
+                        <div class="step-description">
+                            مراجعة واعتماد الخطة من المدير المباشر
+                        </div>
+                    </div>
+
+                    <div class="journey-step">
+                        <div class="step-icon">⚡</div>
+                        <div class="step-title">4. التنفيذ والمتابعة</div>
+                        <div class="step-description">
+                            تنفيذ الخطة ومتابعة التقدم بشكل دوري
+                        </div>
+                    </div>
+
+                    <div class="journey-step">
+                        <div class="step-icon">📝</div>
+                        <div class="step-title">5. إعداد التقارير</div>
+                        <div class="step-description">
+                            كتابة تقرير لكل وحدة تعلمية مكتملة
+                        </div>
+                    </div>
+
+                    <div class="journey-step">
+                        <div class="step-icon">📊</div>
+                        <div class="step-title">6. التقرير النهائي</div>
+                        <div class="step-description">
+                            تقرير كمي ونوعي شامل للحالة التعلمية
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Schedule Topics -->
+            <div class="main-section">
+                <h2 class="section-title">
+                    <span>📅</span>
+                    جدولة الموضوعات التعليمية
+                </h2>
+                
+                <div id="employeeSchedule"></div>
+                
+                <button class="btn btn-secondary" onclick="showScheduleModal()" style="margin-top: 15px;">
+                    ➕ جدولة موضوع جديد
+                </button>
+            </div>
+
+            <!-- Progress Tracking -->
+            <div class="main-section">
+                <h2 class="section-title">
+                    <span>📊</span>
+                    متابعة التقدم
+                </h2>
+                
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-value" id="totalTopics">0</div>
+                        <div class="stat-label">إجمالي الموضوعات</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="completedTopics">0</div>
+                        <div class="stat-label">مكتمل</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="inProgressTopics">0</div>
+                        <div class="stat-label">قيد التنفيذ</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="scheduledTopics">0</div>
+                        <div class="stat-label">مجدول</div>
+                    </div>
+                </div>
+
+                <div id="progressList"></div>
+            </div>
+
+            <!-- Learning Reports -->
+            <div class="main-section">
+                <h2 class="section-title">
+                    <span>📄</span>
+                    التقارير التعلمية
+                </h2>
+                
+                <button class="btn btn-primary" onclick="generateQuantitativeReport()">
+                    📊 تقرير كمي
+                </button>
+                <button class="btn btn-primary" onclick="generateQualitativeReport()">
+                    📝 تقرير نوعي وصفي
+                </button>
+                <button class="btn btn-secondary" onclick="generateComprehensiveReport()">
+                    📋 تقرير شامل
+                </button>
+                
+                <div id="reportsArea" style="margin-top: 25px;"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Schedule Modal -->
+    <div id="scheduleModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeScheduleModal()">×</span>
+            <h2 style="margin-bottom: 25px;">📅 جدولة موضوع تعليمي</h2>
+            
+            <div class="form-group">
+                <label>اختر الموضوع</label>
+                <select id="scheduleTopicSelect"></select>
+            </div>
+            
+            <div class="form-group">
+                <label>أسلوب/نوع التعلم</label>
+                <select id="scheduleLearningMethod">
+                    <option value="course">🎓 دورة تدريبية</option>
+                    <option value="workshop">🎪 ورشة عمل</option>
+                    <option value="conference">🎤 مؤتمر</option>
+                    <option value="reading">📚 قراءة موجهة</option>
+                    <option value="mentoring">👨‍🏫 توجيه وإرشاد</option>
+                    <option value="project">💼 مشروع تطبيقي</option>
+                    <option value="elearning">💻 تعلم إلكتروني</option>
+                    <option value="self">📖 تعلم ذاتي</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label>تاريخ البدء</label>
+                <input type="date" id="scheduleStartDate">
+            </div>
+            
+            <div class="form-group">
+                <label>تاريخ الانتهاء المتوقع</label>
+                <input type="date" id="scheduleEndDate">
+            </div>
+            
+            <div class="form-group">
+                <label>ملاحظات</label>
+                <textarea id="scheduleNotes" placeholder="أي ملاحظات حول خطة التعلم"></textarea>
+            </div>
+            
+            <button class="btn btn-primary" onclick="saveSchedule()">
+                ✅ حفظ الجدولة
+            </button>
+        </div>
+    </div>
+
+    <!-- Report Modal -->
+    <div id="reportModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeReportModal()">×</span>
+            <div id="reportContent"></div>
+        </div>
+    </div>
+
+    <script>
+        // Data Storage
+        let hrTopics = [];
+        let managerTopics = [];
+        let scheduledTopics = [];
+        let completedReports = [];
+
+        // Initialize with sample data
+        function initSampleData() {
+            hrTopics = [
+                {
+                    id: 1,
+                    title: "القيادة التحويلية",
+                    skillType: "soft",
+                    priority: "high",
+                    notes: "ضمن برنامج تطوير القادة 2026",
+                    source: "hr"
+                },
+                {
+                    id: 2,
+                    title: "تحليل البيانات المتقدم",
+                    skillType: "hard",
+                    priority: "high",
+                    notes: "متطلب استراتيجي للتحول الرقمي",
+                    source: "hr"
+                }
+            ];
+
+            managerTopics = [
+                {
+                    id: 3,
+                    title: "إدارة المشاريع Agile",
+                    skillType: "hard",
+                    department: "تقنية المعلومات",
+                    justification: "معظم المشاريع تعتمد منهجية Agile",
+                    source: "manager"
+                },
+                {
+                    id: 4,
+                    title: "مهارات العرض والتقديم",
+                    skillType: "soft",
+                    department: "المبيعات",
+                    justification: "مطلوب لجميع موظفي المبيعات",
+                    source: "manager"
+                }
+            ];
+
+            renderHRTopics();
+            renderManagerTopics();
+            updateScheduleSelect();
+            updateEmployeeStats();
+        }
+
+        // Switch Role View
+        function switchRole(role) {
+            document.querySelectorAll('.role-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            document.querySelectorAll('.role-view').forEach(view => view.classList.remove('active'));
+            document.getElementById('view-' + role).classList.add('active');
+        }
+
+        // HR Functions
+        function addHRTopic() {
+            const title = document.getElementById('hrTopicTitle').value;
+            const skillType = document.getElementById('hrSkillType').value;
+            const priority = document.getElementById('hrPriority').value;
+            const notes = document.getElementById('hrNotes').value;
+
+            if (!title) {
+                alert('الرجاء إدخال عنوان الموضوع');
+                return;
+            }
+
+            const newTopic = {
+                id: Date.now(),
+                title: title,
+                skillType: skillType,
+                priority: priority,
+                notes: notes,
+                source: 'hr',
+                addedDate: new Date().toLocaleDateString('ar-SA')
+            };
+
+            hrTopics.push(newTopic);
+            
+            document.getElementById('hrTopicTitle').value = '';
+            document.getElementById('hrNotes').value = '';
+            
+            renderHRTopics();
+            updateScheduleSelect();
+            
+            alert('✅ تمت إضافة الموضوع بنجاح!\n\nسيظهر للموظفين للجدولة.');
+        }
+
+        function renderHRTopics() {
+            const container = document.getElementById('hrTopicsList');
+            
+            if (hrTopics.length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: #666; padding: 40px;">لم يتم إضافة أي موضوعات بعد</p>';
+                return;
+            }
+
+            container.innerHTML = hrTopics.map(topic => `
+                <div class="topic-card">
+                    <div class="topic-title">${topic.title}</div>
+                    <div class="topic-meta">
+                        <span class="badge badge-${topic.skillType}">
+                            ${topic.skillType === 'soft' ? '🤝 لينة' : '💻 صلبة'}
+                        </span>
+                        <span class="badge badge-hr">👥 HR</span>
+                        <span>أولوية: ${getPriorityLabel(topic.priority)}</span>
+                    </div>
+                    ${topic.notes ? `<p style="margin-top: 10px; font-size: 13px; color: #666;">${topic.notes}</p>` : ''}
+                </div>
+            `).join('');
+        }
+
+        function getPriorityLabel(priority) {
+            const labels = {
+                'high': '🔴 عالية',
+                'medium': '🟡 متوسطة',
+                'low': '🟢 منخفضة'
+            };
+            return labels[priority] || priority;
+        }
+
+        // Manager Functions
+        function addManagerTopic() {
+            const title = document.getElementById('managerTopicTitle').value;
+            const skillType = document.getElementById('managerSkillType').value;
+            const department = document.getElementById('managerDepartment').value;
+            const justification = document.getElementById('managerJustification').value;
+
+            if (!title || !department) {
+                alert('الرجاء إدخال عنوان الموضوع والقسم');
+                return;
+            }
+
+            const newTopic = {
+                id: Date.now(),
+                title: title,
+                skillType: skillType,
+                department: department,
+                justification: justification,
+                source: 'manager',
+                addedDate: new Date().toLocaleDateString('ar-SA')
+            };
+
+            managerTopics.push(newTopic);
+            
+            document.getElementById('managerTopicTitle').value = '';
+            document.getElementById('managerDepartment').value = '';
+            document.getElementById('managerJustification').value = '';
+            
+            renderManagerTopics();
+            updateScheduleSelect();
+            
+            alert('✅ تمت إضافة الموضوع بنجاح!\n\nسيظهر للموظفين للجدولة.');
+        }
+
+        function renderManagerTopics() {
+            const container = document.getElementById('managerTopicsList');
+            
+            if (managerTopics.length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: #666; padding: 40px;">لم يتم إضافة أي موضوعات بعد</p>';
+                return;
+            }
+
+            container.innerHTML = managerTopics.map(topic => `
+                <div class="topic-card">
+                    <div class="topic-title">${topic.title}</div>
+                    <div class="topic-meta">
+                        <span class="badge badge-${topic.skillType}">
+                            ${topic.skillType === 'soft' ? '🤝 لينة' : '💻 صلبة'}
+                        </span>
+                        <span class="badge badge-manager">👔 مدير</span>
+                        <span>📂 ${topic.department}</span>
+                    </div>
+                    ${topic.justification ? `<p style="margin-top: 10px; font-size: 13px; color: #666;">${topic.justification}</p>` : ''}
+                </div>
+            `).join('');
+        }
+
+        // Employee Functions
+        function updateScheduleSelect() {
+            const select = document.getElementById('scheduleTopicSelect');
+            const allTopics = [...hrTopics, ...managerTopics];
+            
+            select.innerHTML = '<option value="">-- اختر موضوعاً --</option>' +
+                allTopics.map(topic => `
+                    <option value="${topic.id}">
+                        ${topic.title} (${topic.source === 'hr' ? '👥 HR' : '👔 مدير'})
+                    </option>
+                `).join('');
+        }
+
+        function showScheduleModal() {
+            const modal = document.getElementById('scheduleModal');
+            modal.classList.add('active');
+        }
+
+        function closeScheduleModal() {
+            document.getElementById('scheduleModal').classList.remove('active');
+        }
+
+        function saveSchedule() {
+            const topicId = document.getElementById('scheduleTopicSelect').value;
+            const method = document.getElementById('scheduleLearningMethod').value;
+            const startDate = document.getElementById('scheduleStartDate').value;
+            const endDate = document.getElementById('scheduleEndDate').value;
+            const notes = document.getElementById('scheduleNotes').value;
+
+            if (!topicId || !method || !startDate || !endDate) {
+                alert('الرجاء إدخال جميع البيانات المطلوبة');
+                return;
+            }
+
+            const allTopics = [...hrTopics, ...managerTopics];
+            const topic = allTopics.find(t => t.id == topicId);
+
+            const scheduled = {
+                id: Date.now(),
+                topicId: topicId,
+                topicTitle: topic.title,
+                topicSource: topic.source,
+                skillType: topic.skillType,
+                method: method,
+                startDate: startDate,
+                endDate: endDate,
+                notes: notes,
+                status: 'scheduled',
+                progress: 0,
+                scheduledDate: new Date().toLocaleDateString('ar-SA')
+            };
+
+            scheduledTopics.push(scheduled);
+            
+            renderScheduledTopics();
+            updateEmployeeStats();
+            closeScheduleModal();
+            
+            document.getElementById('scheduleTopicSelect').value = '';
+            document.getElementById('scheduleStartDate').value = '';
+            document.getElementById('scheduleEndDate').value = '';
+            document.getElementById('scheduleNotes').value = '';
+            
+            alert('✅ تمت جدولة الموضوع بنجاح!\n\nيمكنك البدء في التنفيذ حسب الجدول.');
+        }
+
+        function renderScheduledTopics() {
+            const container = document.getElementById('employeeSchedule');
+            
+            if (scheduledTopics.length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: #666; padding: 40px;">لم يتم جدولة أي موضوعات بعد</p>';
+                return;
+            }
+
+            container.innerHTML = `
+                <table class="schedule-table">
+                    <thead>
+                        <tr>
+                            <th>الموضوع</th>
+                            <th>المصدر</th>
+                            <th>أسلوب التعلم</th>
+                            <th>البدء</th>
+                            <th>الانتهاء</th>
+                            <th>الحالة</th>
+                            <th>إجراءات</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${scheduledTopics.map(item => `
+                            <tr>
+                                <td><strong>${item.topicTitle}</strong></td>
+                                <td>${item.topicSource === 'hr' ? '👥 HR' : '👔 مدير'}</td>
+                                <td><span class="learning-method">${getLearningMethodLabel(item.method)}</span></td>
+                                <td>${new Date(item.startDate).toLocaleDateString('ar-SA')}</td>
+                                <td>${new Date(item.endDate).toLocaleDateString('ar-SA')}</td>
+                                <td>${getStatusLabel(item.status)}</td>
+                                <td>
+                                    <button class="btn btn-secondary" style="padding: 6px 12px; font-size: 13px;" onclick="updateProgress(${item.id})">
+                                        تحديث
+                                    </button>
+                                </td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+        }
+
+        function getLearningMethodLabel(method) {
+            const methods = {
+                'course': '🎓 دورة',
+                'workshop': '🎪 ورشة',
+                'conference': '🎤 مؤتمر',
+                'reading': '📚 قراءة',
+                'mentoring': '👨‍🏫 توجيه',
+                'project': '💼 مشروع',
+                'elearning': '💻 إلكتروني',
+                'self': '📖 ذاتي'
+            };
+            return methods[method] || method;
+        }
+
+        function getStatusLabel(status) {
+            const labels = {
+                'scheduled': '📅 مجدول',
+                'in_progress': '⚡ قيد التنفيذ',
+                'completed': '✅ مكتمل'
+            };
+            return labels[status] || status;
+        }
+
+        function updateProgress(id) {
+            const item = scheduledTopics.find(s => s.id === id);
+            if (!item) return;
+
+            const progress = prompt(`تحديث التقدم لـ "${item.topicTitle}"\n\nأدخل نسبة الإنجاز (0-100):`, item.progress);
+            
+            if (progress === null) return;
+            
+            const progressNum = parseInt(progress);
+            if (isNaN(progressNum) || progressNum < 0 || progressNum > 100) {
+                alert('الرجاء إدخال رقم صحيح بين 0 و 100');
+                return;
+            }
+
+            item.progress = progressNum;
+            
+            if (progressNum > 0 && progressNum < 100) {
+                item.status = 'in_progress';
+            } else if (progressNum === 100) {
+                item.status = 'completed';
+                
+                // Prompt for learning report
+                setTimeout(() => {
+                    if (confirm('تم إكمال الموضوع!\n\nهل تريد كتابة تقرير التجربة التعلمية الآن؟')) {
+                        writeLearningReport(item);
+                    }
+                }, 500);
+            }
+
+            updateEmployeeStats();
+            renderScheduledTopics();
+        }
+
+        function writeLearningReport(item) {
+            const report = prompt(`📝 تقرير التجربة التعلمية\n\nالموضوع: ${item.topicTitle}\n\nاكتب ملخصاً عن:\n- ما تعلمته\n- كيف ستطبقه في العمل\n- التحديات والحلول\n\n`, '');
+            
+            if (report) {
+                completedReports.push({
+                    id: Date.now(),
+                    topicId: item.id,
+                    topicTitle: item.topicTitle,
+                    report: report,
+                    date: new Date().toLocaleDateString('ar-SA')
+                });
+                
+                alert('✅ تم حفظ التقرير بنجاح!');
+            }
+        }
+
+        function updateEmployeeStats() {
+            const total = scheduledTopics.length;
+            const completed = scheduledTopics.filter(s => s.status === 'completed').length;
+            const inProgress = scheduledTopics.filter(s => s.status === 'in_progress').length;
+            const scheduled = scheduledTopics.filter(s => s.status === 'scheduled').length;
+
+            document.getElementById('totalTopics').textContent = total;
+            document.getElementById('completedTopics').textContent = completed;
+            document.getElementById('inProgressTopics').textContent = inProgress;
+            document.getElementById('scheduledTopics').textContent = scheduled;
+
+            renderProgressList();
+        }
+
+        function renderProgressList() {
+            const container = document.getElementById('progressList');
+            const items = scheduledTopics.filter(s => s.progress > 0);
+
+            if (items.length === 0) return;
+
+            container.innerHTML = `
+                <h3 style="margin: 20px 0 15px; color: #333;">الموضوعات قيد التنفيذ:</h3>
+                ${items.map(item => `
+                    <div style="background: white; border: 2px solid #E0E0E0; border-radius: 10px; padding: 15px; margin-bottom: 15px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                            <strong>${item.topicTitle}</strong>
+                            <span style="color: #667eea; font-weight: bold;">${item.progress}%</span>
+                        </div>
+                        <div class="progress-bar-container">
+                            <div class="progress-bar" style="width: ${item.progress}%"></div>
+                        </div>
+                        <div style="font-size: 13px; color: #666; margin-top: 8px;">
+                            ${getLearningMethodLabel(item.method)} | ${getStatusLabel(item.status)}
+                        </div>
+                    </div>
+                `).join('')}
+            `;
+        }
+
+        // Reports Functions
+        function generateQuantitativeReport() {
+            const total = scheduledTopics.length;
+            const completed = scheduledTopics.filter(s => s.status === 'completed').length;
+            const inProgress = scheduledTopics.filter(s => s.status === 'in_progress').length;
+            const completionRate = total > 0 ? Math.round((completed / total) * 100) : 0;
+
+            const softSkills = scheduledTopics.filter(s => s.skillType === 'soft').length;
+            const hardSkills = scheduledTopics.filter(s => s.skillType === 'hard').length;
+
+            const reportHtml = `
+                <div class="report-card">
+                    <div class="report-header">
+                        <h2>📊 التقرير الكمي للتعلم</h2>
+                        <span style="color: #666;">${new Date().toLocaleDateString('ar-SA')}</span>
+                    </div>
+
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-value">${total}</div>
+                            <div class="stat-label">إجمالي الموضوعات</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value">${completed}</div>
+                            <div class="stat-label">مكتمل</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value">${completionRate}%</div>
+                            <div class="stat-label">معدل الإنجاز</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value">${inProgress}</div>
+                            <div class="stat-label">قيد التنفيذ</div>
+                        </div>
+                    </div>
+
+                    <h3 style="margin: 20px 0 15px;">توزيع المهارات:</h3>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                        <div style="background: #E3F2FD; padding: 20px; border-radius: 10px; text-align: center;">
+                            <div style="font-size: 32px; font-weight: bold; color: #1976D2;">${softSkills}</div>
+                            <div style="color: #666;">🤝 مهارات لينة</div>
+                        </div>
+                        <div style="background: #FFF3E0; padding: 20px; border-radius: 10px; text-align: center;">
+                            <div style="font-size: 32px; font-weight: bold; color: #F57C00;">${hardSkills}</div>
+                            <div style="color: #666;">💻 مهارات صلبة</div>
+                        </div>
+                    </div>
+
+                    <div style="margin-top: 20px; text-align: center;">
+                        <button class="btn btn-secondary" onclick="window.print()">🖨️ طباعة التقرير</button>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('reportsArea').innerHTML = reportHtml;
+        }
+
+        function generateQualitativeReport() {
+            if (completedReports.length === 0) {
+                alert('لا توجد تقارير تعلمية بعد. أكمل موضوعاً واكتب تقريراً عنه.');
+                return;
+            }
+
+            const reportHtml = `
+                <div class="report-card">
+                    <div class="report-header">
+                        <h2>📝 التقرير النوعي الوصفي</h2>
+                        <span style="color: #666;">${new Date().toLocaleDateString('ar-SA')}</span>
+                    </div>
+
+                    <h3 style="margin-bottom: 15px;">التجارب التعلمية المكتملة:</h3>
+
+                    ${completedReports.map((report, index) => `
+                        <div style="background: #F8F9FA; padding: 20px; border-radius: 10px; margin-bottom: 15px; border-right: 4px solid #4CAF50;">
+                            <h4 style="color: #333; margin-bottom: 10px;">${index + 1}. ${report.topicTitle}</h4>
+                            <p style="color: #666; line-height: 1.8; white-space: pre-wrap;">${report.report}</p>
+                            <div style="margin-top: 10px; font-size: 13px; color: #999;">
+                                التاريخ: ${report.date}
+                            </div>
+                        </div>
+                    `).join('')}
+
+                    <div style="margin-top: 20px; text-align: center;">
+                        <button class="btn btn-secondary" onclick="window.print()">🖨️ طباعة التقرير</button>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('reportsArea').innerHTML = reportHtml;
+        }
+
+        function generateComprehensiveReport() {
+            const total = scheduledTopics.length;
+            const completed = scheduledTopics.filter(s => s.status === 'completed').length;
+            const completionRate = total > 0 ? Math.round((completed / total) * 100) : 0;
+
+            const reportHtml = `
+                <div class="report-card">
+                    <div class="report-header">
+                        <h2>📋 التقرير الشامل للحالة التعلمية</h2>
+                        <span style="color: #666;">${new Date().toLocaleDateString('ar-SA')}</span>
+                    </div>
+
+                    <h3 style="color: #667eea; margin-bottom: 15px;">القسم الكمي:</h3>
+                    <div class="stats-grid" style="margin-bottom: 30px;">
+                        <div class="stat-card">
+                            <div class="stat-value">${total}</div>
+                            <div class="stat-label">إجمالي الموضوعات</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value">${completed}</div>
+                            <div class="stat-label">مكتمل</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value">${completionRate}%</div>
+                            <div class="stat-label">معدل الإنجاز</div>
+                        </div>
+                    </div>
+
+                    <h3 style="color: #667eea; margin-bottom: 15px;">القسم النوعي:</h3>
+                    ${completedReports.length > 0 ? `
+                        ${completedReports.slice(0, 3).map((report, index) => `
+                            <div style="background: #F8F9FA; padding: 15px; border-radius: 8px; margin-bottom: 10px;">
+                                <h4 style="color: #333; margin-bottom: 8px; font-size: 15px;">${report.topicTitle}</h4>
+                                <p style="color: #666; font-size: 14px; line-height: 1.6;">${report.report.substring(0, 200)}...</p>
+                            </div>
+                        `).join('')}
+                    ` : '<p style="color: #666;">لا توجد تقارير تعلمية بعد</p>'}
+
+                    <div style="margin-top: 30px; text-align: center;">
+                        <button class="btn btn-primary" onclick="window.print()">🖨️ طباعة التقرير الشامل</button>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('reportsArea').innerHTML = reportHtml;
+        }
+
+        function closeReportModal() {
+            document.getElementById('reportModal').classList.remove('active');
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            initSampleData();
+        });
+
+        // Close modals on outside click
+        window.onclick = function(event) {
+            if (event.target.classList.contains('modal')) {
+                event.target.classList.remove('active');
+            }
+        }
+    </script>
+</body>
+</html>
